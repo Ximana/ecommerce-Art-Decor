@@ -1,0 +1,197 @@
+{# Template listarMetodoPagamento.html #}
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Métodos de Pagamento - PulmoVision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-credit-card me-2"></i>Métodos de Pagamento
+            </h2>
+            <p class="text-muted">Gerenciamento de métodos de pagamento disponíveis</p>
+        </div>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionarMetodoPagamento">
+            <i class="fas fa-plus me-2"></i>Novo Método
+        </button>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'administracao:metodo_pagamento_lista' %}" method="GET">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar por nome do método de pagamento"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Métodos de Pagamento -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="7" class="ps-3">
+                                Métodos de Pagamento
+                                <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Métodos">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Taxa</th>
+                            <th scope="col">Prazo</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Descrição</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for metodo in metodos_pagamento %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ metodo.nome }}</div>
+                                        <small class="text-muted">Método #{{ metodo.pk }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ metodo.taxa }}%</td>
+                            <td>{{ metodo.prazo_processamento }} dia(s)</td>
+                            <td>
+                                <span class="badge {% if metodo.status %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ metodo.status|yesno:"Ativo,Inativo" }}
+                                </span>
+                            </td>
+                            <td>{{ metodo.descricao|truncatechars:50|default:"-" }}</td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <a href="{% url 'administracao:metodo_pagamento_editar' metodo.pk %}" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Editar método de pagamento">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao('{{ metodo.nome }}', '{% url 'administracao:metodo_pagamento_remover' metodo.pk %}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Remover método de pagamento">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-credit-card fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhum método de pagamento encontrado para "{{ search_query }}".
+                                            <a href="{% url 'pagamentos:metodo_pagamento_lista' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                                                Limpar pesquisa
+                                            </a>
+                                        {% else %}
+                                            Nenhum método de pagamento cadastrado.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Adicionar Método de Pagamento -->
+{% include 'administracao/pagamentos/adicionarMetodoPagamentoModal.html' %}
+
+<!-- Modal Remover Método de Pagamento -->
+{% include 'administracao/pagamentos/removerMetodoPagamentoModal.html' %}
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Função para confirmar remoção do Método de Pagamento
+function confirmarRemocao(nome, url) {
+    // Atualiza o nome do método no modal
+    document.getElementById('metodoPagamentoNome').textContent = nome;
+    
+    // Atualiza o action do formulário com a URL correta
+    document.getElementById('formRemover').action = url;
+    
+    // Abre o modal
+    new bootstrap.Modal(document.getElementById('modalRemover')).show();
+}
+</script>
+{% endblock %}

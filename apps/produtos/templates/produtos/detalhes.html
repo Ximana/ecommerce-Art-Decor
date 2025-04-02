@@ -1,0 +1,472 @@
+
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Produto - {{ produto.nome }}{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    /* Melhorias nos estilos de texto para descrição, especificações e avaliações */
+    .tab-pane {
+        color: #555;
+        line-height: 1.7;
+    }
+    
+    .tab-pane p {
+        color: #666;
+    }
+    
+    .tab-pane table {
+        color: #555;
+    }
+    
+    .product-description {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .nav-tabs .nav-link {
+        color: #555;
+        transition: color 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #007bff;
+        border-bottom: 2px solid #007bff;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<div class="container-fluid shop-header">
+    <div class="container">
+        <h1 class="text-center">Detalhes do Produto</h1>
+        <p class="text-center">
+            <a href="{% url 'produtos:lista' %}">Loja</a> / {{ produto.nome }}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Conteúdo de Detalhes do Produto -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="product-gallery">
+                {% if produto.imagens.all %}
+                    <!-- Imagem principal -->
+                    <img src="{{ produto.imagens.first.url_imagem.url }}" 
+                         alt="{{ produto.nome }}" 
+                         class="img-fluid main-product-image" 
+                         id="mainProductImage">
+                    
+                    <!-- Miniaturas -->
+                    {% if produto.imagens.count > 1 %}
+                    <div class="product-thumbnails mt-3 d-flex justify-content-center">
+                        {% for imagem in produto.imagens.all %}
+                            <img src="{{ imagem.url_imagem.url }}" 
+                                 alt="{{ produto.nome }} - Imagem {{ forloop.counter }}" 
+                                 class="img-thumbnail mx-2 product-thumbnail {% if forloop.first %}border border-primary{% endif %}" 
+                                 style="width: 80px; height: 80px; object-fit: cover;"
+                                 data-imagem-id="{{ imagem.id }}">
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Imagem padrão se não houver imagens -->
+                    <img src="/media/produtos/product_6.png" 
+                         alt="{{ produto.nome }}" 
+                         class="img-fluid main-product-image" 
+                         id="mainProductImage">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="product-details">
+                <h1 class="product-title">{{ produto.nome }}</h1>
+                <div class="product-meta d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Categoria: 
+                        <a href="{% url 'produtos:lista' %}?categoria={{ produto.categoria.id }}">
+                            {{ produto.categoria.nome }}
+                        </a>
+                    </span>
+                    
+                    {% if produto.estoque > 0 %}
+                        <span class="badge bg-success">Em Estoque ({{ produto.estoque }})</span>
+                    {% else %}
+                        <span class="badge bg-danger">Fora de Estoque</span>
+                    {% endif %}
+                </div>
+                
+                <div class="product-price mb-3">
+                    <span class="h2 text-primary">kz {{ produto.preco_venda|floatformat:2 }}</span>
+                </div>
+                
+                {% if produto.marca %}
+                <div class="product-brand mb-2">
+                    <span class="text-muted">Marca: 
+                        <a href="{% url 'produtos:lista' %}?marca={{ produto.marca.id }}">
+                            {{ produto.marca.nome }}
+                        </a>
+                    </span>
+                </div>
+                {% endif %}
+                
+                <p class="product-description">
+                    {{ produto.descricao|default:"Sem descrição disponível." }}
+                </p>
+                
+                <div class="product-actions mt-4">
+                    <div class="d-flex align-items-center">
+                        <form id="addToCartForm" method="post" action="{% url 'carrinhos:adicionar' %}" class="add-to-cart-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="produto_id" value="{{ produto.id }}">
+                            
+                            <!-- SELEÇÃO DE VARIAÇÃO -->
+                            {% if produto.variacoes.exists %}
+                            <div class="form-group mb-3">
+                                <label for="variacao">Variação:</label>
+                                <select name="variacao_id" id="variacao" class="form-select">
+                                    <option value="">Selecione uma variação</option>
+                                    {% for variacao in produto.variacoes.all %}
+                                        {% if variacao.status and variacao.estoque > 0 %}
+                                            <option value="{{ variacao.id }}">
+                                                {{ variacao.nome }} 
+                                                {% if variacao.valor > 0 %}
+                                                    (+ kz {{ variacao.valor|floatformat:2 }})
+                                                {% endif %}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="input-group me-3" style="max-width: 120px;">
+                                    <button class="btn btn-outline-secondary" type="button" id="decreaseQuantity">-</button>
+                                    <input type="text" class="form-control text-center" name="quantidade" value="1" readonly id="quantityInput">
+                                    <button class="btn btn-outline-secondary" type="button" id="increaseQuantity">+</button>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary" id="addToCartBtn" {% if produto.estoque <= 0 %}disabled{% endif %}>
+                                    <i class="fas fa-shopping-cart me-2"></i> Adicionar ao Carrinho
+                                </button>
+                                
+                                {% if user.is_authenticated %}
+                                    <button type="button" class="btn btn-outline-secondary ms-3" id="addToFavoritesBtn" data-produto-id="{{ produto.id }}">
+                                        <i class="{% comment %}{% if produto in user.lista_desejos.all|map:'produto' %}fas{% else %}far{% endif %}{% endcomment %} fas fa-heart"></i>
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-secondary ms-3">
+                                        <i class="far fa-heart"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                {% if produto.codigo_barras or produto.peso or produto.dimensoes %}
+                <div class="product-extra-info mt-4">
+                    <ul class="list-unstyled">
+                        {% if produto.codigo_barras %}
+                            <li><small class="text-muted">Código: {{ produto.codigo_barras }}</small></li>
+                        {% endif %}
+                        
+                        {% if produto.peso %}
+                            <li><small class="text-muted">Peso: {{ produto.peso }} kg</small></li>
+                        {% endif %}
+                        
+                        {% if produto.dimensoes %}
+                            <li><small class="text-muted">Dimensões: {{ produto.dimensoes }}</small></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="product-additional-info mt-5">
+        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">Descrição</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="specification-tab" data-bs-toggle="tab" data-bs-target="#specification" type="button" role="tab">Especificações</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="related-tab" data-bs-toggle="tab" data-bs-target="#related" type="button" role="tab">Produtos Relacionados</button>
+            </li>
+        </ul>
+        <div class="tab-content mt-3" id="productTabsContent">
+            <!-- Tab Descrição -->
+            <div class="tab-pane fade show active" id="description" role="tabpanel">
+                {% if produto.descricao %}
+                    <div class="product-full-description">
+                        {{ produto.descricao|linebreaks }}
+                    </div>
+                {% else %}
+                    <p>Nenhuma descrição detalhada disponível para este produto.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Tab Especificações -->
+            <div class="tab-pane fade" id="specification" role="tabpanel">
+                <table class="table">
+                    {% if produto.marca %}
+                    <tr>
+                        <th>Marca</th>
+                        <td>{{ produto.marca.nome }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    <tr>
+                        <th>Categoria</th>
+                        <td>{{ produto.categoria.nome }}</td>
+                    </tr>
+                    
+                    {% if produto.codigo_barras %}
+                    <tr>
+                        <th>Código de Barras</th>
+                        <td>{{ produto.codigo_barras }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if produto.peso %}
+                    <tr>
+                        <th>Peso</th>
+                        <td>{{ produto.peso }} kg</td>
+                    </tr>
+                    {% endif %}
+                    
+                    {% if produto.dimensoes %}
+                    <tr>
+                        <th>Dimensões</th>
+                        <td>{{ produto.dimensoes }}</td>
+                    </tr>
+                    {% endif %}
+                    
+                    <tr>
+                        <th>Data de Cadastro</th>
+                        <td>{{ produto.data_cadastro|date:"d/m/Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Tab Produtos Relacionados -->
+            <div class="tab-pane fade" id="related" role="tabpanel">
+                <div class="row">
+                    {% if produtos_relacionados %}
+                        {% for produto_rel in produtos_relacionados %}
+                            <div class="col-md-3 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-img-top">
+                                        {% if produto_rel.imagens.first %}
+                                            <img src="{{ produto_rel.imagens.first.url_imagem.url }}" 
+                                                 alt="{{ produto_rel.nome }}" 
+                                                 class="img-fluid" 
+                                                 style="height: 200px; object-fit: cover;">
+                                        {% else %}
+                                            <img src="/media/produtos/product_6.png" 
+                                                 alt="{{ produto_rel.nome }}" 
+                                                 class="img-fluid"
+                                                 style="height: 200px; object-fit: cover;">
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ produto_rel.nome }}</h5>
+                                        <p class="card-text text-primary">kz {{ produto_rel.preco_venda|floatformat:2 }}</p>
+                                        <a href="{% url 'produtos:detalhe' produto_rel.pk %}" class="btn btn-sm btn-outline-primary">Ver Detalhes</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <p>Não há produtos relacionados disponíveis.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Controle de quantidade
+        const quantityInput = document.getElementById('quantityInput');
+        const decreaseBtn = document.getElementById('decreaseQuantity');
+        const increaseBtn = document.getElementById('increaseQuantity');
+        
+        // Estoque máximo disponível
+        const estoqueMaximo = {{ produto.estoque }};
+
+        decreaseBtn.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        });
+
+        increaseBtn.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+            // Limitar ao estoque disponível
+            if (currentValue < estoqueMaximo) {
+                quantityInput.value = currentValue + 1;
+            } else {
+                // Opcional: mostrar mensagem de alerta
+                alert('Quantidade máxima disponível em estoque: ' + estoqueMaximo);
+            }
+        });
+
+        // Troca de imagem do produto
+        const mainProductImage = document.getElementById('mainProductImage');
+        const thumbnails = document.querySelectorAll('.product-thumbnail');
+
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener('click', function() {
+                // Remove active class from all thumbnails
+                thumbnails.forEach(t => t.classList.remove('border', 'border-primary'));
+                
+                // Add active class to clicked thumbnail
+                this.classList.add('border', 'border-primary');
+                
+                // Change main image
+                mainProductImage.src = this.src;
+                mainProductImage.alt = this.alt;
+            });
+        });
+        
+        // Adicionar ao carrinho (pode ser implementado posteriormente com AJAX)
+        const addToCartForm = document.getElementById('addToCartForm');
+        if (addToCartForm) {
+            addToCartForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                // Enviar via AJAX
+                fetch('{% url "carrinhos:adicionar" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Feedback visual
+                    const addToCartBtn = document.getElementById('addToCartBtn');
+                    const originalText = addToCartBtn.innerHTML;
+                    
+                    if (data.status === 'success') {
+                        // Atualizar contador do carrinho se existir
+                        const cartCounter = document.getElementById('cartCounter');
+                        if (cartCounter) {
+                            cartCounter.textContent = data.quantidade_total;
+                            cartCounter.classList.remove('d-none');
+                        }
+                        
+                        // Alterar botão para mostrar sucesso
+                        addToCartBtn.innerHTML = '<i class="fas fa-check me-2"></i> Adicionado!';
+                        addToCartBtn.classList.replace('btn-primary', 'btn-success');
+                        
+                        // Mensagem de sucesso
+                        showAlert('success', data.message);
+                    } else {
+                        // Mensagem de erro
+                        showAlert('danger', data.message || 'Erro ao adicionar ao carrinho');
+                    }
+                    
+                    // Restaurar botão após 2 segundos
+                    setTimeout(() => {
+                        addToCartBtn.innerHTML = originalText;
+                        addToCartBtn.classList.replace('btn-success', 'btn-primary');
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao processar sua solicitação');
+                });
+            });
+        }
+
+        // Função para mostrar alertas
+        function showAlert(type, message) {
+            // Criar elemento de alerta
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.style.zIndex = '9999';
+            
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Adicionar ao documento
+            document.body.appendChild(alertDiv);
+            
+            // Remover após 5 segundos
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }, 5000);
+        }
+
+        
+        // Adicionar aos favoritos com AJAX
+const addToFavoritesBtn = document.getElementById('addToFavoritesBtn');
+if (addToFavoritesBtn) {
+    addToFavoritesBtn.addEventListener('click', function() {
+        const produtoId = this.getAttribute('data-produto-id');
+        const heartIcon = this.querySelector('i');
+        const formData = new FormData();
+        formData.append('produto_id', produtoId);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        fetch('{% url "usuarios:adicionar_desejo" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Toggle coração vazio/cheio
+            if (data.added) {
+                heartIcon.classList.replace('far', 'fas');
+                this.classList.add('text-danger');
+            } else {
+                heartIcon.classList.replace('fas', 'far');
+                this.classList.remove('text-danger');
+            }
+            
+            // Mostrar mensagem
+            showAlert('success', data.message);
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showAlert('danger', 'Erro ao processar sua solicitação');
+        });
+    });
+}
+
+
+
+    });
+</script>
+{% endblock %}

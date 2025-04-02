@@ -1,0 +1,254 @@
+:root {
+  --primary-text-color: #4a4a4a;
+  --secondary-text-color: #6c757d;
+  --accent-color: #007bff;
+  --light-background: #f8f9fa;
+}
+
+body {
+  font-family: 'Inter', 'Arial', sans-serif;
+  color: var(--primary-text-color);
+  line-height: 1.6;
+}
+
+/* Estilo para a contagem de intens do carrinho */
+/* Adicione ao seu arquivo estilo.css */
+
+.cart-count {
+  font-size: 0.7rem;
+  transform: translate(-50%, -50%) !important;
+}
+
+.position-relative {
+  position: relative !important;
+}
+
+.position-absolute {
+  position: absolute !important;
+}
+
+.top-0 {
+  top: 0 !important;
+}
+
+.start-100 {
+  left: 100% !important;
+}
+
+.translate-middle {
+  transform: translate(-50%, -50%) !important;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 60%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+}
+
+.rounded-pill {
+  border-radius: 50rem !important;
+}
+
+.bg-danger {
+  background-color: #cd5460 !important;
+}
+
+/* Navbar */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-icons .user-dropdown {
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-icons .user-dropdown:hover {
+  color: var(--primary-text-color);
+}
+
+
+.dropdown-menu {
+  min-width: 200px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+}
+
+
+.shop-header {
+  background-color: #f8f9fa;
+  padding: 50px 0;
+}
+
+.sidebar h4, .sidebar h5 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.sidebar ul li a {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+  color: #007bff;
+}
+
+.color-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.color-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.color-box:hover {
+  transform: scale(1.1);
+}
+
+.color-box.black { background-color: black; }
+.color-box.black-leather { background-color: #4a4a4a; }
+.color-box.gold { background-color: gold; }
+
+.product-card {
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #eee;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+}
+
+.product-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-hover-actions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-hover-actions {
+  opacity: 1;
+}
+
+.hover-action-container {
+  display: flex;
+  gap: 10px;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .hover-action-container {
+  transform: translateY(0);
+}
+
+.product-hover-actions .btn {
+  padding: 10px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.product-hover-actions .btn:hover {
+  transform: scale(1.1);
+}
+
+.btn-pink {
+  background-color: #ff69b4;
+  color: white;
+}
+
+/* Footer links styling */
+footer ul li a {
+  color: #6c757d;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+  padding-bottom: 3px;
+}
+
+footer ul li a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+
+footer ul li a:hover {
+  color: #007bff;
+}
+
+footer ul li a:hover::after {
+  width: 100%;
+}
+
+footer h5 {
+  margin-bottom: 15px;
+  color: #333;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+footer h5::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background-color: #007bff;
+}
+
+.social-icons a {
+  color: #333;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+      margin-bottom: 30px;
+  }
+}

@@ -1,0 +1,240 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Lista de Desejos{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    /* Estilos específicos para a página de lista de desejos */
+    .wishlist-empty {
+        min-height: 50vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .wishlist-empty i {
+        font-size: 5rem;
+        color: #007bff;
+        margin-bottom: 20px;
+    }
+
+    .wishlist-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s ease;
+    }
+
+    .wishlist-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .wishlist-item-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin-right: 20px;
+        border-radius: 8px;
+    }
+
+    .wishlist-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .wishlist-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .wishlist-item-image {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+
+        .wishlist-actions {
+            justify-content: center;
+            margin-top: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+    <!-- Banner -->
+    <div class="container-fluid shop-header">
+        <div class="container">
+            <h1 class="text-center">Lista de Desejos</h1>
+            <p class="text-center">Início - Lista de Desejos</p>
+        </div>
+    </div>
+    <!-- Fim Banner -->
+{% endblock %}
+
+{% block content %}
+
+<!-- Conteúdo da Lista de Desejos -->
+<div class="container mt-5">
+    <div class="row">
+        <!-- Opção quando a lista de desejos está vazia -->
+        {% if itens|length == 0 %}
+        <div class="col-12 wishlist-empty" id="emptyWishlist">
+            <i class="fas fa-heart-broken"></i>
+            <h2>Sua lista de desejos está vazia</h2>
+            <p>Parece que você ainda não adicionou nenhum item à sua lista de desejos.</p>
+            <a href="{% url 'produtos:lista' %}" class="btn btn-primary mt-3">Continuar Comprando</a>
+        </div>
+        {% else %}
+        <!-- Lista de Desejos -->
+        <div class="col-12" id="wishlistItems">
+            {% for item in itens %}
+            <div class="wishlist-item" id="item-{{ item.id }}">
+                {% if item.produto.imagens.first %}
+                <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}" class="wishlist-item-image">
+                {% else %}
+                <img src="/media/produtos/product_6.png" alt="{{ item.produto.nome }}" class="wishlist-item-image">
+                {% endif %}
+                
+                <div class="wishlist-item-details flex-grow-1">
+                    <h5>{{ item.produto.nome }}</h5>
+                    {% if item.produto.marca %}
+                    <p class="text-muted">Marca: {{ item.produto.marca.nome }}</p>
+                    {% endif %}
+                    <p class="fw-bold">kz {{ item.produto.preco_venda|floatformat:2 }}</p>
+                </div>
+                <div class="wishlist-actions">
+                    <form action="{% url 'carrinhos:adicionar' %}" method="post" class="add-to-cart-from-wishlist">
+                        {% csrf_token %}
+                        <input type="hidden" name="produto_id" value="{{ item.produto.id }}">
+                        <input type="hidden" name="quantidade" value="1">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
+                        </button>
+                    </form>
+                    <form action="{% url 'usuarios:remover_desejo' item.id %}" method="post" class="remove-from-wishlist">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash me-2"></i>Remover
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adicionar ao carrinho com AJAX
+        document.querySelectorAll('.add-to-cart-from-wishlist').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                fetch('{% url "carrinhos:adicionar" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Atualizar contador do carrinho
+                        const cartCounter = document.getElementById('cartCounter');
+                        if (cartCounter) {
+                            cartCounter.textContent = data.quantidade_total;
+                            cartCounter.classList.remove('d-none');
+                        }
+                        
+                        // Mensagem de sucesso
+                        showAlert('success', data.message);
+                    } else {
+                        showAlert('danger', data.message || 'Erro ao adicionar ao carrinho');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao processar sua solicitação');
+                });
+            });
+        });
+        
+        // Remover da lista de desejos com AJAX
+        document.querySelectorAll('.remove-from-wishlist').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                const itemId = this.action.split('/').slice(-2)[0];
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Remover item visualmente
+                        const item = document.getElementById(`item-${itemId}`);
+                        item.remove();
+                        
+                        // Verificar se a lista ficou vazia
+                        if (data.count === 0) {
+                            location.reload(); // Recarregar para mostrar mensagem de lista vazia
+                        }
+                        
+                        // Mensagem de sucesso
+                        showAlert('success', data.message);
+                    } else {
+                        showAlert('danger', data.message || 'Erro ao remover da lista de desejos');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao processar sua solicitação');
+                });
+            });
+        });
+        
+        // Função para mostrar alertas
+        function showAlert(type, message) {
+            // Criar elemento de alerta
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.style.zIndex = '9999';
+            
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Adicionar ao documento
+            document.body.appendChild(alertDiv);
+            
+            // Remover após 5 segundos
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }, 5000);
+        }
+    });
+</script>
+{% endblock %}

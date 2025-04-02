@@ -1,0 +1,152 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Editar Endereço{% endblock %}
+
+{% block banner %}
+    <!-- Banner -->
+    <div class="container-fluid shop-header">
+        <div class="container">
+            <h1 class="text-center">Editar Endereço</h1>
+            <p class="text-center">Atualize as informações do seu endereço</p>
+        </div>
+    </div>
+    <!-- Fim Banner -->
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Menu de Navegação Lateral -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Minha Conta</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="#">Meu Perfil</a>
+                    </li>
+                    <li class="list-group-item bg-light fw-bold">
+                        <a href="{% url 'usuarios:listar_enderecos' %}">Meus Endereços</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{% url 'usuarios:lista_desejos' %}">Lista de Desejos</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">Meus Pedidos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Editar Endereço</h5>
+                    <a href="{% url 'usuarios:listar_enderecos' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Voltar para Endereços
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="id_tipo" class="form-label">Tipo de Endereço</label>
+                                <select name="tipo" id="id_tipo" class="form-select {% if form.tipo.errors %}is-invalid{% endif %}" required>
+                                    <option value="">Selecione...</option>
+                                    {% for value, text in form.fields.tipo.choices %}
+                                        <option value="{{ value }}" {% if form.tipo.value == value %}selected{% endif %}>{{ text }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.tipo.errors %}
+                                    <div class="invalid-feedback">{{ form.tipo.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_provincia" class="form-label">Província</label>
+                                <input type="text" name="provincia" id="id_provincia" class="form-control {% if form.provincia.errors %}is-invalid{% endif %}" value="{{ form.provincia.value|default:'' }}" required>
+                                {% if form.provincia.errors %}
+                                    <div class="invalid-feedback">{{ form.provincia.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_municipio" class="form-label">Município</label>
+                                <input type="text" name="municipio" id="id_municipio" class="form-control {% if form.municipio.errors %}is-invalid{% endif %}" value="{{ form.municipio.value|default:'' }}" required>
+                                {% if form.municipio.errors %}
+                                    <div class="invalid-feedback">{{ form.municipio.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_distrito" class="form-label">Distrito</label>
+                                <input type="text" name="distrito" id="id_distrito" class="form-control {% if form.distrito.errors %}is-invalid{% endif %}" value="{{ form.distrito.value|default:'' }}" required>
+                                {% if form.distrito.errors %}
+                                    <div class="invalid-feedback">{{ form.distrito.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_bairro" class="form-label">Bairro</label>
+                                <input type="text" name="bairro" id="id_bairro" class="form-control {% if form.bairro.errors %}is-invalid{% endif %}" value="{{ form.bairro.value|default:'' }}" required>
+                                {% if form.bairro.errors %}
+                                    <div class="invalid-feedback">{{ form.bairro.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_rua" class="form-label">Rua</label>
+                                <input type="text" name="rua" id="id_rua" class="form-control {% if form.rua.errors %}is-invalid{% endif %}" value="{{ form.rua.value|default:'' }}" required>
+                                {% if form.rua.errors %}
+                                    <div class="invalid-feedback">{{ form.rua.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_casa" class="form-label">Casa/Número</label>
+                                <input type="text" name="casa" id="id_casa" class="form-control {% if form.casa.errors %}is-invalid{% endif %}" value="{{ form.casa.value|default:'' }}" required>
+                                {% if form.casa.errors %}
+                                    <div class="invalid-feedback">{{ form.casa.errors|first }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input type="checkbox" name="principal" id="id_principal" class="form-check-input {% if form.principal.errors %}is-invalid{% endif %}" {% if form.principal.value %}checked{% endif %}>
+                            <label for="id_principal" class="form-check-label">Definir como endereço principal</label>
+                            {% if form.principal.errors %}
+                                <div class="invalid-feedback">{{ form.principal.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'usuarios:listar_enderecos' %}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Atualizar Endereço</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

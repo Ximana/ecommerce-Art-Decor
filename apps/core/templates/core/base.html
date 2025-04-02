@@ -1,0 +1,131 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
+
+    <link href="{%  static 'core/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'core/css/all.min.css'  %}" rel="stylesheet" />
+    <link href="{% static 'core/css/estilo.css' %}" rel="stylesheet" />
+    
+    {% block arquivos_css %}{% endblock %}
+  </head>
+
+  <body>
+
+    
+
+  <!-- Menu -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white">
+      <div class="container">
+          <a class="navbar-brand" href="{% url 'core:home' %}">Art & Decor.</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav me-auto">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">Início</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'produtos:lista' %}">Loja</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Páginas</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Contato</a></li>
+              </ul>
+              <div class="nav-icons d-flex align-items-center">
+                    <a href="{% url 'usuarios:lista_desejos' %}" class="me-3"><i class="fas fa-heart"></i></a>
+                        <a href="{% url 'carrinhos:lista' %}" class="me-3 position-relative">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">
+                                {{ quantidade_itens_carrinho|default:"0" }}
+                            </span>
+                        </a>
+                    </a>
+                  <div class="dropdown">
+                      <a href="#" class="dropdown-toggle user-dropdown" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ user.get_nome_completo }}
+                      </a>
+                      <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                          <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                          <li><a class="dropdown-item" href="{% url 'pedidos:meus_pedidos' %}"><i class="fas fa-shopping-bag me-2"></i>Meus Pedidos</a></li>
+                          <li><a class="dropdown-item" href="{% url 'usuarios:listar_enderecos' %}"><i class="fas fa-shopping-bag me-2"></i>Meus Endereços</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </nav>
+  <!-- Fim Menu -->
+
+  <!-- Banner -->
+  {% block banner %}{% endblock %}
+
+    <!-- Corpo da pagina -->
+    <div class="container mt-5">
+      <div class="row">
+
+
+          {% block content %}{% endblock %}
+
+
+          
+      </div>
+    </div>
+    <!-- Fim Corpo da pagina -->
+
+    <!-- Rodape -->
+    <footer class="mt-5 bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5>Principais Produtos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Serviços de Marketing</a></li>
+                        <li><a href="#">Otimização de SEO</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Vagas</a></li>
+                        <li><a href="#">Recursos da Marca</a></li>
+                        <li><a href="#">Relações com Investidores</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Recursos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Termos de Serviço</a></li>
+                        <li><a href="#">Soluções de Marca</a></li>
+                        <li><a href="#">Agências</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Newsletter</h5>
+                    <p>Céu frutífero não é menor em dias</p>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Endereço de E-mail">
+                        <button class="btn btn-pink" type="button">Assinar</button>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="ms-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="ms-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="ms-2"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p>Art & Decor 2025 Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'core/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'core/js/script.js' %}"></script>
+    {% block scriptJS %}{% endblock %}
+  </body>
+</html>

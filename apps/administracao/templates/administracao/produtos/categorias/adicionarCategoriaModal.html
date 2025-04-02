@@ -1,0 +1,140 @@
+<div
+  class="modal fade"
+  id="modalAdicionarCategoria"
+  tabindex="-1"
+  aria-labelledby="modalAdicionarCategoriaLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdicionarCategoriaLabel">
+          Adicionar Nova Categoria
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="col-md-8">
+            <div class="form-group mb-3">
+              <label for="nome">Nome da Categoria</label>
+              <input
+                type="text"
+                class="form-control {% if form.nome.errors %}is-invalid{% endif %}"
+                id="nome"
+                name="nome"
+                value="{{ form.nome.value|default:'' }}"
+                required
+              />
+              {% if form.nome.errors %}
+                <div class="invalid-feedback">{{ form.nome.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            
+
+            
+
+            
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-group mb-3">
+              <label for="imagem">Imagem da Categoria</label>
+              <input
+                type="file"
+                class="form-control {% if form.imagem.errors %}is-invalid{% endif %}"
+                id="imagem"
+                name="imagem"
+                accept="image/*"
+              />
+              {% if form.imagem.errors %}
+                <div class="invalid-feedback">{{ form.imagem.errors|first }}</div>
+              {% endif %}
+              
+              {% if form.instance.imagem %}
+                <img src="{{ form.instance.imagem.url }}" class="img-fluid mt-2" alt="Imagem da Categoria">
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-12">
+
+            <div class="form-group mb-3">
+              <label for="categoria_pai">Categoria Pai</label>
+              <select
+                class="form-control {% if form.categoria_pai.errors %}is-invalid{% endif %}"
+                id="categoria_pai"
+                name="categoria_pai"
+              >
+                <option value="">Selecione uma categoria pai (opcional)</option>
+                {% for categoria in categorias %}
+                  <option 
+                    value="{{ categoria.id }}"
+                    {% if form.categoria_pai.value == categoria.id %}selected{% endif %}
+                  >
+                    {{ categoria.nome }}
+                  </option>
+                {% endfor %}
+              </select>
+              {% if form.categoria_pai.errors %}
+                <div class="invalid-feedback">{{ form.categoria_pai.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            
+            <div class="form-group mb-3">
+              <label for="descricao">Descrição</label>
+              <textarea
+                class="form-control {% if form.descricao.errors %}is-invalid{% endif %}"
+                id="descricao"
+                name="descricao"
+                rows="3"
+              >{{ form.descricao.value|default:'' }}</textarea>
+              {% if form.descricao.errors %}
+                <div class="invalid-feedback">{{ form.descricao.errors|first }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group mb-3">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input {% if form.status.errors %}is-invalid{% endif %}"
+                  id="status" 
+                  name="status"
+                  {% if form.status.value is not False %}checked{% endif %}
+                >
+                <label class="form-check-label" for="status">Categoria Ativa</label>
+                {% if form.status.errors %}
+                  <div class="invalid-feedback">{{ form.status.errors|first }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+            <button type="submit" class="btn btn-success btn-sm">
+              Adicionar Categoria
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

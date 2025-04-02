@@ -1,0 +1,211 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Meus Endereços{% endblock %}
+
+{% block banner %}
+    <!-- Banner -->
+    <div class="container-fluid shop-header">
+        <div class="container">
+            <h1 class="text-center">Meus Endereços</h1>
+            <p class="text-center">Gerencie seus endereços de entrega e cobrança</p>
+        </div>
+    </div>
+    <!-- Fim Banner -->
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Menu de Navegação Lateral -->
+        <div class="col-lg-3 mb-4">
+            <!-- Menu lateral do usuário -->
+            {% include 'usuarios/menu_lateral.html' %}
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Meus Endereços</h5>
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdicionarEndereco">
+                        <i class="fas fa-plus-circle"></i> Adicionar Endereço
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% if enderecos %}
+                        <div class="row">
+                            {% for endereco in enderecos %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 {% if endereco.principal %}border-primary{% endif %}">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">
+                                                {% if endereco.principal %}
+                                                    <span class="badge bg-primary me-2">Principal</span>
+                                                {% endif %}
+                                                {{ endereco.get_tipo_display }}
+                                            </h6>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownEndereco{{ endereco.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Ações
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownEndereco{{ endereco.id }}">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'usuarios:editar_endereco' endereco.id %}">
+                                                            <i class="fas fa-edit me-2"></i> Editar
+                                                        </a>
+                                                    </li>
+                                                    {% if not endereco.principal %}
+                                                        <li>
+                                                            <form action="{% url 'usuarios:endereco_principal' endereco.id %}" method="post" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-star me-2"></i> Definir como Principal
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    {% endif %}
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" href="{% url 'usuarios:excluir_endereco' endereco.id %}">
+                                                            <i class="fas fa-trash me-2"></i> Excluir
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-1"><strong>Província:</strong> {{ endereco.provincia }}</p>
+                                            <p class="mb-1"><strong>Município:</strong> {{ endereco.municipio }}</p>
+                                            <p class="mb-1"><strong>Distrito:</strong> {{ endereco.distrito }}</p>
+                                            <p class="mb-1"><strong>Bairro:</strong> {{ endereco.bairro }}</p>
+                                            <p class="mb-1"><strong>Rua:</strong> {{ endereco.rua }}</p>
+                                            <p class="mb-0"><strong>Casa:</strong> {{ endereco.casa }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-map-marker-alt fa-3x mb-3 text-muted"></i>
+                            <h5 class="text-muted">Você ainda não cadastrou nenhum endereço</h5>
+                            <p>Adicione endereços para facilitar suas compras.</p>
+                            <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#modalAdicionarEndereco">
+                                Adicionar Primeiro Endereço
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar endereço -->
+<div class="modal fade" id="modalAdicionarEndereco" tabindex="-1" aria-labelledby="modalAdicionarEnderecoLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdicionarEnderecoLabel">Adicionar Novo Endereço</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'usuarios:listar_enderecos' %}">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="id_tipo" class="form-label">Tipo de Endereço</label>
+                            <select name="tipo" id="id_tipo" class="form-select {% if form.tipo.errors %}is-invalid{% endif %}" required>
+                                <option value="">Selecione...</option>
+                                {% for value, text in form.fields.tipo.choices %}
+                                    <option value="{{ value }}" {% if form.tipo.value == value %}selected{% endif %}>{{ text }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.tipo.errors %}
+                                <div class="invalid-feedback">{{ form.tipo.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_provincia" class="form-label">Província</label>
+                            <input type="text" name="provincia" id="id_provincia" class="form-control {% if form.provincia.errors %}is-invalid{% endif %}" value="{{ form.provincia.value|default:'' }}" required>
+                            {% if form.provincia.errors %}
+                                <div class="invalid-feedback">{{ form.provincia.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="id_municipio" class="form-label">Município</label>
+                            <input type="text" name="municipio" id="id_municipio" class="form-control {% if form.municipio.errors %}is-invalid{% endif %}" value="{{ form.municipio.value|default:'' }}" required>
+                            {% if form.municipio.errors %}
+                                <div class="invalid-feedback">{{ form.municipio.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_distrito" class="form-label">Distrito</label>
+                            <input type="text" name="distrito" id="id_distrito" class="form-control {% if form.distrito.errors %}is-invalid{% endif %}" value="{{ form.distrito.value|default:'' }}" required>
+                            {% if form.distrito.errors %}
+                                <div class="invalid-feedback">{{ form.distrito.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="id_bairro" class="form-label">Bairro</label>
+                            <input type="text" name="bairro" id="id_bairro" class="form-control {% if form.bairro.errors %}is-invalid{% endif %}" value="{{ form.bairro.value|default:'' }}" required>
+                            {% if form.bairro.errors %}
+                                <div class="invalid-feedback">{{ form.bairro.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_rua" class="form-label">Rua</label>
+                            <input type="text" name="rua" id="id_rua" class="form-control {% if form.rua.errors %}is-invalid{% endif %}" value="{{ form.rua.value|default:'' }}" required>
+                            {% if form.rua.errors %}
+                                <div class="invalid-feedback">{{ form.rua.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="id_casa" class="form-label">Casa/Número</label>
+                            <input type="text" name="casa" id="id_casa" class="form-control {% if form.casa.errors %}is-invalid{% endif %}" value="{{ form.casa.value|default:'' }}" required>
+                            {% if form.casa.errors %}
+                                <div class="invalid-feedback">{{ form.casa.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="principal" id="id_principal" class="form-check-input {% if form.principal.errors %}is-invalid{% endif %}" {% if form.principal.value %}checked{% endif %}>
+                        <label for="id_principal" class="form-check-label">Definir como endereço principal</label>
+                        {% if form.principal.errors %}
+                            <div class="invalid-feedback">{{ form.principal.errors|first }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Adicionar Endereço</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

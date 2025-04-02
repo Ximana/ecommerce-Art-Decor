@@ -1,0 +1,192 @@
+<!--apps/produtos/templates/produtos/editarModal.html-->
+<div
+  class="modal fade"
+  id="modalEditarProduto"
+  tabindex="-1"
+  aria-labelledby="modalEditarLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEditarLabel">
+          Editar Dados do Produto
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form class="row" method="POST" action="{% url 'administracao:produto_editar' produto.pk %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label for="nome">Nome</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nome"
+                name="nome"
+                value="{{ produto.nome }}"
+                required
+              />
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="descricao">Descrição</label>
+              <textarea
+                class="form-control"
+                id="descricao"
+                name="descricao"
+                rows="3"
+              >{{ produto.descricao }}</textarea>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="categoria">Categoria</label>
+              <select class="form-select" id="categoria" name="categoria" required>
+                {% for categoria in form.fields.categoria.queryset %}
+                  <option value="{{ categoria.pk }}" {% if produto.categoria == categoria %}selected{% endif %}>
+                    {{ categoria.nome }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="marca">Marca</label>
+              <select class="form-select" id="marca" name="marca">
+                <option value="">Selecione...</option>
+                {% for marca in form.fields.marca.queryset %}
+                  <option value="{{ marca.pk }}" {% if produto.marca == marca %}selected{% endif %}>
+                    {{ marca.nome }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-6 form-group mb-3">
+                <label for="preco_custo">Preço de Custo</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="preco_custo"
+                  name="preco_custo"
+                  step="0.01"
+                  value="{{ produto.preco_custo }}"
+                />
+              </div>
+
+              <div class="col-6 form-group mb-3">
+                <label for="preco_venda">Preço de Venda</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="preco_venda"
+                  name="preco_venda"
+                  step="0.01"
+                  value="{{ produto.preco_venda }}"
+                  required
+                />
+              </div>
+
+              
+
+              <div class="col-6 form-group mb-3">
+                <label for="estoque_minimo">Estoque Mínimo</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="estoque_minimo"
+                  name="estoque_minimo"
+                  value="{{ produto.estoque_minimo }}"
+                />
+              </div>
+
+              <div class="col-6 form-group mb-3">
+                <label for="peso">Peso (kg)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="peso"
+                  name="peso"
+                  step="0.01"
+                  value="{{ produto.peso }}"
+                />
+              </div>
+
+              <div class="col-6 form-group mb-3">
+                <label for="dimensoes">Dimensões</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="dimensoes"
+                  name="dimensoes"
+                  value="{{ produto.dimensoes }}"
+                />
+              </div>
+
+              <div class="col-6 form-group mb-3">
+                <label for="codigo_barras">Código de Barras</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="codigo_barras"
+                  name="codigo_barras"
+                  value="{{ produto.codigo_barras }}"
+                />
+              </div>
+
+              <div class="col-6 form-group mb-3 d-flex align-items-center">
+                <div class="form-check">
+                  <input 
+                    type="checkbox" 
+                    class="form-check-input" 
+                    id="destaque" 
+                    name="destaque"
+                    {% if produto.destaque %}checked{% endif %}
+                  >
+                  <label class="form-check-label" for="destaque">Produto em Destaque</label>
+                </div>
+              </div>
+
+              <div class="col-6 form-group mb-3 d-flex align-items-center">
+                <div class="form-check">
+                  <input 
+                    type="checkbox" 
+                    class="form-check-input" 
+                    id="status" 
+                    name="status"
+                    {% if produto.status %}checked{% endif %}
+                  >
+                  <label class="form-check-label" for="status">Ativo</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-success btn-sm">
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

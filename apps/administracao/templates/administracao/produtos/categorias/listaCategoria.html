@@ -1,0 +1,198 @@
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Categorias - PulmoVision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-tags me-2"></i>Categorias
+            </h2>
+            <p class="text-muted">Gerenciamento de categorias de produtos</p>
+        </div>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionarCategoria">
+            <i class="fas fa-plus me-2"></i>Nova Categoria
+        </button>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'administracao:categoria_lista' %}" method="GET">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar por nome da categoria"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Categorias -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="5" class="ps-3">
+                                Categorias
+                                <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Categorias">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Categoria Pai</th>
+                            <th scope="col">Descrição</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for categoria in categorias %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    {% if categoria.imagem %}
+                                    <img src="{{ categoria.imagem.url }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        <i class="fas fa-tags"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ categoria.nome }}</div>
+                                        <small class="text-muted">Categoria #{{ categoria.pk }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge {% if categoria.status %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ categoria.status|yesno:"Ativo,Inativo" }}
+                                </span>
+                            </td>
+                            <td>{{ categoria.categoria_pai.nome|default:"-" }}</td>
+                            <td>{{ categoria.descricao|truncatechars:50|default:"-" }}</td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <a href="" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Editar categoria">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao('{{ categoria.nome }}', '{% url 'administracao:categoria_remover' categoria.pk %}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Remover categoria">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-tags fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhuma categoria encontrada para "{{ search_query }}".
+                                            <a href="{% url 'administracao:categoria_lista' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                                                Limpar pesquisa
+                                            </a>
+                                        {% else %}
+                                            Nenhuma categoria cadastrada.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Adicionar Categoria -->
+{% include 'administracao/produtos/categorias/adicionarCategoriaModal.html' %}
+
+<!-- Modal Remover Categoria -->
+{% include 'administracao/produtos/categorias/removerCategoriaModal.html' %}
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Função para confirmar remoção da Categoria
+function confirmarRemocao(nome, url) {
+    // Atualiza o nome da categoria no modal
+    document.getElementById('categoriaNome').textContent = nome;
+    
+    // Atualiza o action do formulário com a URL correta
+    document.getElementById('formRemover').action = url;
+    
+    // Abre o modal
+    new bootstrap.Modal(document.getElementById('modalRemover')).show();
+}
+</script>
+{% endblock %}

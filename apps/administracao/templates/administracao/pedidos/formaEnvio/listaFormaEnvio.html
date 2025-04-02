@@ -1,0 +1,237 @@
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Formas de Envio - PulmoVision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-shipping-fast me-2"></i>Formas de Envio
+            </h2>
+            <p class="text-muted">Gerenciamento de formas de envio de produtos</p>
+        </div>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionarFormaEnvio">
+            <i class="fas fa-plus me-2"></i>Nova Forma de Envio
+        </button>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'administracao:forma_envio_lista' %}" method="GET">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar por nome da forma de envio"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Formas de Envio -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="5" class="ps-3">
+                                Formas de Envio
+                                <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Formas de Envio">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Prazo (dias)</th>
+                            <th scope="col">Taxa (Kz)</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for forma in formas_envio %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        <i class="fas fa-shipping-fast"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ forma.get_nome_display }}</div>
+                                        <small class="text-muted">{{ forma.descricao|truncatechars:30|default:"-" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if forma.prazo_entrega %}
+                                    {{ forma.prazo_entrega }} dia(s)
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if forma.taxa_fixa %}
+                                    {{ forma.taxa_fixa }} Kz
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if forma.status %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ forma.status|yesno:"Ativo,Inativo" }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <button
+                                       type="button"
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#modalEditarFormaEnvio"
+                                       onclick="prepararEdicao({{ forma.id }}, '{{ forma.nome }}', '{{ forma.descricao|escapejs }}', {{ forma.prazo_entrega|default:'null' }}, {{ forma.taxa_fixa|default:'null' }}, {% if forma.status %}true{% else %}false{% endif %})"
+                                       title="Editar forma de envio">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao('{{ forma.get_nome_display }}', '{% url 'administracao:forma_envio_remover' forma.pk %}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Remover forma de envio">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-shipping-fast fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhuma forma de envio encontrada para "{{ search_query }}".
+                                            <a href="{% url 'administracao:forma_envio_lista' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                                                Limpar pesquisa
+                                            </a>
+                                        {% else %}
+                                            Nenhuma forma de envio cadastrada.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Adicionar Forma de Envio -->
+{% include 'administracao/pedidos/formaEnvio/adicionarFormaEnvioModal.html' %}
+
+<!-- Modal Editar Forma de Envio -->
+{% include 'administracao/pedidos/formaEnvio/editarFormaEnvioModal.html' %}
+
+<!-- Modal Remover Forma de Envio -->
+{% include 'administracao/pedidos/formaEnvio/removerFormaEnvioModal.html' %}
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Função para preparar o modal de edição com os dados da forma de envio
+function prepararEdicao(id, nome, descricao, prazoEntrega, taxaFixa, status) {
+    // Atualiza o ID do formulário
+    document.getElementById('formEditar').action = '/administracao/formas-envio/editar/' + id + '/';
+    
+    // Preenche os campos do formulário
+    document.getElementById('nome_editar').value = nome;
+    document.getElementById('descricao_editar').value = descricao;
+    
+    // Campos que podem ser nulos
+    if (prazoEntrega !== null) {
+        document.getElementById('prazo_entrega_editar').value = prazoEntrega;
+    } else {
+        document.getElementById('prazo_entrega_editar').value = '';
+    }
+    
+    if (taxaFixa !== null) {
+        document.getElementById('taxa_fixa_editar').value = taxaFixa;
+    } else {
+        document.getElementById('taxa_fixa_editar').value = '';
+    }
+    
+    // Checkbox
+    document.getElementById('status_editar').checked = status;
+}
+
+// Função para confirmar remoção da Forma de Envio
+function confirmarRemocao(nome, url) {
+    // Atualiza o nome da forma de envio no modal
+    document.getElementById('formaEnvioNome').textContent = nome;
+    
+    // Atualiza o action do formulário com a URL correta
+    document.getElementById('formRemover').action = url;
+    
+    // Abre o modal
+    new bootstrap.Modal(document.getElementById('modalRemover')).show();
+}
+</script>
+{% endblock %}

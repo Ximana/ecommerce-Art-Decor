@@ -1,0 +1,269 @@
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Produtos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-box me-2"></i>Produtos
+            </h2>
+            <p class="text-muted">Gerenciamento de produtos do sistema</p>
+        </div>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAdicionar">
+            <i class="fas fa-plus me-2"></i>Novo Produto
+        </button>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'administracao:listaProdutos' %}" method="GET">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Pesquisar produtos"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas Categorias</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" 
+                                {% if categoria.id|stringformat:'s' == categoria_selecionada %}selected{% endif %}>
+                            {{ categoria.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="marca" class="form-select">
+                        <option value="">Todas Marcas</option>
+                        {% for marca in marcas %}
+                        <option value="{{ marca.id }}" 
+                                {% if marca.id|stringformat:'s' == marca_selecionada %}selected{% endif %}>
+                            {{ marca.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros Ativos -->
+    {% if search_query or categoria_selecionada or marca_selecionada %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <span class="me-2 text-muted">Filtros ativos:</span>
+                
+                {% if search_query %}
+                <span class="badge bg-secondary me-2">
+                    Busca: {{ search_query }}
+                    <a href="{% url 'administracao:listaProdutos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if categoria_selecionada %}
+                <span class="badge bg-secondary me-2">
+                    Categoria: 
+                    {% for categoria in categorias %}
+                        {% if categoria.id|stringformat:'s' == categoria_selecionada %}
+                            {{ categoria.nome }}
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'administracao:listaProdutos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if marca_selecionada %}
+                <span class="badge bg-secondary me-2">
+                    Marca: 
+                    {% for marca in marcas %}
+                        {% if marca.id|stringformat:'s' == marca_selecionada %}
+                            {{ marca.nome }}
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'administracao:listaProdutos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Produtos -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="7" class="ps-3">
+                                Produtos
+                                <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Produtos">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Categoria</th>
+                            <th scope="col">Preço de Venda</th>
+                            <th scope="col">Estoque</th>
+                            <th scope="col">Marca</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ produto.nome }}</div>
+                                        <small class="text-muted">Produto #{{ produto.pk }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ produto.categoria.nome }}</td>
+                            <td>kz {{ produto.preco_venda|floatformat:2 }}</td>
+                            <td>
+                                <span class="{% if produto.estoque <= produto.estoque_minimo %}text-danger{% else %}text-success{% endif %}">
+                                    {{ produto.estoque }}
+                                </span>
+                            </td>
+                            <td>{{ produto.marca.nome|default:"-" }}</td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <a href="{% url 'administracao:produto_detalhe' pk=produto.pk %}" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes do produto">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao('{{ produto.nome }}', '{% url 'administracao:produto_remover' produto.pk %}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Remover produto">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-box fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query %}
+                                            Nenhum produto encontrado para "{{ search_query }}".
+                                            <a href="{% url 'administracao:listaProdutos' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                                                Limpar pesquisa
+                                            </a>
+                                        {% else %}
+                                            Nenhum produto cadastrado.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Adicionar Produto -->
+{% include 'administracao/produtos/adicionarModal.html' %}
+
+<!-- Modal Remover Produto -->
+{% include 'administracao/produtos/removerProdutoModal.html' %}
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+
+
+// Função para confirmar remoção do produto
+function confirmarRemocao(nome, url) {
+    // Atualiza o nome do produto no modal
+    document.getElementById('produtoNome').textContent = nome;
+    
+    // Atualiza o action do formulário com a URL correta
+    document.getElementById('formRemover').action = url;
+    
+    // Abre o modal
+    new bootstrap.Modal(document.getElementById('modalRemover')).show();
+}
+
+</script>
+{% endblock %}

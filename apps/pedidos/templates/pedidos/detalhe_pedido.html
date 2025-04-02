@@ -1,0 +1,396 @@
+<!-- templates/pedidos/detalhe_pedido.html -->
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Pedido{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .pedido-page {
+        padding: 50px 0;
+    }
+    
+    .pedido-header {
+        margin-bottom: 30px;
+    }
+    
+    .pedido-status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    
+    .status-aguardando_pagamento { background-color: #ffc107; color: #000; }
+    .status-pagamento_aprovado { background-color: #17a2b8; color: #fff; }
+    .status-em_separacao { background-color: #6c757d; color: #fff; }
+    .status-enviado { background-color: #28a745; color: #fff; }
+    .status-entregue { background-color: #28a745; color: #fff; }
+    .status-cancelado { background-color: #dc3545; color: #fff; }
+    
+    .pedido-section {
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .pedido-section h5 {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .pedido-info-item {
+        margin-bottom: 10px;
+    }
+    
+    .pedido-info-item strong {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .pedido-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .pedido-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .pedido-item img {
+        max-width: 80px;
+        margin-right: 15px;
+    }
+    
+    .pedido-item-details {
+        flex: 1;
+    }
+    
+    .pedido-totals {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .final-total {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    
+    .historico-item {
+        display: flex;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .historico-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .historico-item::before {
+        content: '';
+        position: absolute;
+        left: 13px;
+        top: 30px;
+        height: calc(100% + 15px);
+        width: 2px;
+        background-color: #eee;
+    }
+    
+    .historico-item:last-child::before {
+        display: none;
+    }
+    
+    .historico-status {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #007bff;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        z-index: 1;
+    }
+    
+    .historico-conteudo {
+        flex: 1;
+    }
+    
+    .historico-data {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    
+    .historico-mensagem {
+        margin-top: 5px;
+    }
+    
+    .actions-buttons {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<!-- Banner -->
+<div class="container-fluid shop-header">
+    <div class="container">
+        <h1 class="text-center">Detalhes do Pedido</h1>
+        <p class="text-center">Início - Meus Pedidos - Detalhes</p>
+    </div>
+</div>
+<!-- Fim Banner -->
+{% endblock %}
+
+{% block content %}
+<div class="container pedido-page">
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Menu lateral do usuário -->
+            {% include 'usuarios/menu_lateral.html' %}
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="pedido-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>
+                        Pedido #{{ pedido.codigo_pedido }}
+                        <span class="pedido-status status-{{ pedido.status }}">{{ pedido.get_status_display }}</span>
+                    </h3>
+                    <div>
+                        <a href="{% url 'pedidos:meus_pedidos' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+                <p class="text-muted">Pedido realizado em {{ pedido.data_pedido|date:"d/m/Y \à\s H:i" }}</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Informações do Pedido -->
+                    <div class="pedido-section">
+                        <h5>Informações do Pedido</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="pedido-info-item">
+                                    <strong>Forma de Envio</strong>
+                                    <p>{{ pedido.forma_envio.nome }}</p>
+                                </div>
+                                <div class="pedido-info-item">
+                                    <strong>Método de Pagamento</strong>
+                                    <p>{{ pedido.metodo_pagamento.nome }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="pedido-info-item">
+                                    <strong>Status Atual</strong>
+                                    <p>{{ pedido.get_status_display }}</p>
+                                </div>
+                                <div class="pedido-info-item">
+                                    <strong>Data do Pedido</strong>
+                                    <p>{{ pedido.data_pedido|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if pedido.observacoes %}
+                            <div class="pedido-info-item mt-3">
+                                <strong>Observações</strong>
+                                <p>{{ pedido.observacoes }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Endereços -->
+                    <div class="pedido-section">
+                        <h5>Endereços</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="pedido-info-item">
+                                    <strong>Endereço de Entrega</strong>
+                                    <p>{{ pedido.endereco_entrega.rua }}, {{ pedido.endereco_entrega.casa }}</p>
+                                    <p>{{ pedido.endereco_entrega.bairro }}, {{ pedido.endereco_entrega.distrito }}</p>
+                                    <p>{{ pedido.endereco_entrega.municipio }} - {{ pedido.endereco_entrega.provincia }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="pedido-info-item">
+                                    <strong>Endereço de Cobrança</strong>
+                                    <p>{{ pedido.endereco_cobranca.rua }}, {{ pedido.endereco_cobranca.casa }}</p>
+                                    <p>{{ pedido.endereco_cobranca.bairro }}, {{ pedido.endereco_cobranca.distrito }}</p>
+                                    <p>{{ pedido.endereco_cobranca.municipio }} - {{ pedido.endereco_cobranca.provincia }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Itens do Pedido -->
+                    <div class="pedido-section">
+                        <h5>Itens do Pedido</h5>
+                        
+                        {% for item in itens %}
+                            <div class="pedido-item">
+                                {% if item.produto.imagens.first %}
+                                    <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}">
+                                {% else %}
+                                    <img src="{% static 'img/no-image.png' %}" alt="{{ item.produto.nome }}">
+                                {% endif %}
+                                
+                                <div class="pedido-item-details">
+                                    <div class="d-flex justify-content-between">
+                                        <h6>{{ item.produto.nome }}</h6>
+                                        <span>{{ item.quantidade }}x</span>
+                                    </div>
+                                    {% if item.variacao %}
+                                        <small class="text-muted">{{ item.variacao.nome }}</small>
+                                    {% endif %}
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <span>Preço unitário: kz {{ item.preco_unitario|floatformat:2 }}</span>
+                                        <strong>kz {{ item.preco_total|floatformat:2 }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="pedido-totals">
+                            <div class="total-row">
+                                <span>Subtotal:</span>
+                                <span>kz {{ pedido.subtotal|floatformat:2 }}</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Frete:</span>
+                                <span>kz {{ pedido.valor_frete|floatformat:2 }}</span>
+                            </div>
+                            {% if pedido.valor_desconto > 0 %}
+                                <div class="total-row">
+                                    <span>Desconto:</span>
+                                    <span>- kz {{ pedido.valor_desconto|floatformat:2 }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="total-row final-total">
+                                <span>Total:</span>
+                                <span>kz {{ pedido.valor_total|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Histórico do Pedido -->
+                    <div class="pedido-section">
+                        <h5>Histórico do Pedido</h5>
+                        
+                        {% for evento in historico %}
+                            <div class="historico-item">
+                                <div class="historico-status">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="historico-conteudo">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{ evento.get_status_display }}</strong>
+                                        <span class="historico-data">{{ evento.data_criacao|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <div class="historico-mensagem">
+                                        {{ evento.mensagem }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Ações disponíveis -->
+                    <div class="actions-buttons">
+                        {% if pedido.status in 'aguardando_pagamento,pagamento_aprovado,em_separacao' %}
+                            <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#cancelarPedidoModal">
+                                Cancelar Pedido
+                            </button>
+                        {% endif %}
+                        
+                        {% if pedido.status == 'em_transporte' %}
+                            <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#confirmacaoEntregaModal">
+                                Confirmar Recebimento
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cancelar pedido -->
+<div class="modal fade" id="cancelarPedidoModal" tabindex="-1" role="dialog" aria-labelledby="cancelarPedidoModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelarPedidoModalLabel">Cancelar Pedido</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja cancelar o pedido #{{ pedido.codigo_pedido }}?</p>
+                <p>Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                <form method="post" action="{% url 'pedidos:cancelar' codigo=pedido.codigo_pedido %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Confirmar Cancelamento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar recebimento -->
+<div class="modal fade" id="confirmacaoEntregaModal" tabindex="-1" role="dialog" aria-labelledby="confirmacaoEntregaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacaoEntregaModalLabel">Confirmar Recebimento</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Confirma que recebeu o pedido #{{ pedido.codigo_pedido }}?</p>
+                <p>Ao confirmar, você está indicando que o pedido foi entregue corretamente.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                <form method="post" action="{% url 'pedidos:confirmar_entrega' codigo=pedido.codigo_pedido %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Confirmar Recebimento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    
+    
+</script>
+{% endblock %}

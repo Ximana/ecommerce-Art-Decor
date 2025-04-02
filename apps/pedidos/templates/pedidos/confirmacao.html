@@ -1,0 +1,227 @@
+<!-- templates/pedidos/confirmacao.html -->
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Confirmação de Pedido{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .confirmation-page {
+        padding: 50px 0;
+    }
+    
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .confirmation-header i {
+        font-size: 80px;
+        color: #28a745;
+        display: block;
+        margin-bottom: 20px;
+    }
+    
+    .order-details {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .order-info {
+        margin-bottom: 20px;
+    }
+    
+    .order-info-item {
+        margin-bottom: 10px;
+    }
+    
+    .order-items {
+        margin-top: 30px;
+    }
+    
+    .order-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    
+    .order-item img {
+        max-width: 80px;
+        margin-right: 15px;
+    }
+    
+    .order-item-details {
+        flex: 1;
+    }
+    
+    .order-totals {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .final-total {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    
+    .action-buttons {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .action-buttons .btn {
+        margin: 0 10px;
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<!-- Banner -->
+<div class="container-fluid shop-header">
+    <div class="container">
+        <h1 class="text-center">Confirmação de Pedido</h1>
+        <p class="text-center">Início - Pedidos - Confirmação</p>
+    </div>
+</div>
+<!-- Fim Banner -->
+{% endblock %}
+
+{% block content %}
+<div class="container confirmation-page">
+    <div class="confirmation-header">
+        <i class="fas fa-check-circle"></i>
+        <h2>Pedido Confirmado!</h2>
+        <p>Seu pedido foi recebido e está sendo processado.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="order-details">
+                <h4>Detalhes do Pedido</h4>
+                
+                <div class="order-info">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="order-info-item">
+                                <strong>Número do Pedido:</strong>
+                                <p>{{ pedido.codigo_pedido }}</p>
+                            </div>
+                            <div class="order-info-item">
+                                <strong>Data do Pedido:</strong>
+                                <p>{{ pedido.data_pedido|date:"d/m/Y H:i" }}</p>
+                            </div>
+                            <div class="order-info-item">
+                                <strong>Status:</strong>
+                                <p>{{ pedido.get_status_display }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="order-info-item">
+                                <strong>Forma de Envio:</strong>
+                                <p>{{ pedido.forma_envio.nome }}</p>
+                            </div>
+                            <div class="order-info-item">
+                                <strong>Método de Pagamento:</strong>
+                                <p>{{ pedido.metodo_pagamento.nome }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="address-box">
+                            <h5>Endereço de Entrega</h5>
+                            <p>{{ pedido.endereco_entrega.rua }}, {{ pedido.endereco_entrega.casa }}</p>
+                            <p>{{ pedido.endereco_entrega.bairro }}, {{ pedido.endereco_entrega.distrito }}</p>
+                            <p>{{ pedido.endereco_entrega.municipio }} - {{ pedido.endereco_entrega.provincia }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="address-box">
+                            <h5>Endereço de Cobrança</h5>
+                            <p>{{ pedido.endereco_cobranca.rua }}, {{ pedido.endereco_cobranca.casa }}</p>
+                            <p>{{ pedido.endereco_cobranca.bairro }}, {{ pedido.endereco_cobranca.distrito }}</p>
+                            <p>{{ pedido.endereco_cobranca.municipio }} - {{ pedido.endereco_cobranca.provincia }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-items">
+                    <h5>Itens do Pedido</h5>
+                    
+                    {% for item in itens %}
+                        <div class="order-item">
+                            {% if item.produto.imagens.first %}
+                                <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}">
+                            {% else %}
+                                <img src="{% static 'img/no-image.png' %}" alt="{{ item.produto.nome }}">
+                            {% endif %}
+                            
+                            <div class="order-item-details">
+                                <div class="d-flex justify-content-between">
+                                    <h6>{{ item.produto.nome }}</h6>
+                                    <span>{{ item.quantidade }}x</span>
+                                </div>
+                                {% if item.variacao %}
+                                    <small class="text-muted">{{ item.variacao.nome }}</small>
+                                {% endif %}
+                                <div class="text-right">
+                                    <strong>kz {{ item.preco_total|floatformat:2 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="order-totals">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>kz {{ pedido.subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Frete:</span>
+                        <span>kz {{ pedido.valor_frete|floatformat:2 }}</span>
+                    </div>
+                    {% if pedido.valor_desconto > 0 %}
+                        <div class="total-row">
+                            <span>Desconto:</span>
+                            <span>- kz {{ pedido.valor_desconto|floatformat:2 }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="total-row final-total">
+                        <span>Total:</span>
+                        <span>kz {{ pedido.valor_total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{% url 'pedidos:meus_pedidos' %}" class="btn btn-primary">Meus Pedidos</a>
+                <a href="{% url 'core:home' %}" class="btn btn-outline-primary">Continuar Comprando</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scriptJS %}
+<script>
+    
+    
+</script>
+{% endblock %}
