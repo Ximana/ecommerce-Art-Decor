@@ -5,11 +5,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}PulmoVision{% endblock %}</title>
+    <title>{% block title %}Admin{% endblock %}</title>
 
     <link href="{%  static 'core/css/bootstrap.min.css' %}" rel="stylesheet" />
     <link href="{% static 'core/css/all.min.css'  %}" rel="stylesheet" />
     <link href="{% static 'administracao/css/estilo.css' %}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{% static 'core/img/favicon.ico' %}">
     <style>
      
     </style>
@@ -21,8 +22,10 @@
       <!-- Sidebar -->
       <nav class="border-end" id="sidebar">
         <div class="sidebar-heading">
-          <a href="{% url 'administracao:home' %}">
-            <img src="{% static 'core/img/logo.png'%}" alt="Logo" height="40">
+          <a href="{% url 'administracao:home' %}" class="text-decoration-none text-white">
+            <h2>Dashboard</h2>
+            <!-- <img src="{% static 'core/img/logo.png'%}" alt="Logo" height="40"> -->
+            
           </a>
         </div>
         <ul class="nav flex-column mt-3">
@@ -45,7 +48,7 @@
 
 
           <li class="nav-item">
-            <a class="nav-link" href="{% comment %}{% url 'deteccoes:lista' %}{% endcomment %}">
+            <a class="nav-link" href="{% url 'administracao:lista_pedidos' %}">
               <i class="fas fa-microscope"></i>Pedidos
             </a>
           </li>
@@ -146,31 +149,54 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
+
     <ul class="nav flex-column mt-3">
         
       <li class="nav-item">
-        <a class="nav-link" href="{% comment %}{% url 'pacientes:lista' %}{% endcomment %}">
-          <i class="fas fa-user-injured me-2"></i>Produtos
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% comment %}{% url 'deteccoes:lista' %}{% endcomment %}">
-          <i class="fas fa-microscope me-2"></i>Pedidos
-        </a>
-      </li>
-      
-        <li class="nav-item">
-            <a class="nav-link" href="{% comment %}{% url 'usuarios:lista' %}{% endcomment %}">
-            <i class="fas fa-users me-2"></i>Usuários
+            <a class="nav-link" href="{% url 'administracao:listaProdutos' %}">
+              <i class="fas fa-user-injured"></i>Produtos
             </a>
-        </li>
-        
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'administracao:marca_lista' %}">
+              <i class="fas fa-trademark"></i>Marca
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'administracao:categoria_lista' %}">
+              <i class="fas fa-tags"></i>Categoria
+            </a>
+          </li>
 
-      <li class="nav-item mt-4">
-        <a class="nav-link text-danger" href="{% url 'administracao:logout' %}">
-          <i class="fas fa-sign-out-alt me-2"></i>Sair
-        </a>
-      </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'administracao:lista_pedidos' %}">
+              <i class="fas fa-microscope"></i>Pedidos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'administracao:metodo_pagamento_lista' %}">
+              <i class="fas fa-microscope"></i> Métodos de Pagamento 
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'administracao:forma_envio_lista' %}">
+              <i class="fas fa-microscope"></i> Forma de Envio 
+            </a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'administracao:usuarios_lista' %}">
+              <i class="fas fa-users"></i>Usuários
+            </a>
+          </li>
+          
+
+          <li class="nav-item mt-4">
+            <a class="nav-link text-danger" href="{% url 'administracao:logout' %}">
+              <i class="fas fa-sign-out-alt"></i>Sair
+            </a>
+          </li>
     </ul>
   </div>
 </div>

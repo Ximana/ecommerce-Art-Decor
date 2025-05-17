@@ -92,7 +92,7 @@
 
 {% block banner %}
 <!-- Banner -->
-<div class="container-fluid shop-header">
+<div class="container-fluid cabecalho-pagina">
     <div class="container">
         <h1 class="text-center">Confirmação de Pedido</h1>
         <p class="text-center">Início - Pedidos - Confirmação</p>
@@ -198,6 +198,12 @@
                         <span>Frete:</span>
                         <span>kz {{ pedido.valor_frete|floatformat:2 }}</span>
                     </div>
+                    {% if pedido.taxa_pagamento > 0 %}
+                    <div class="total-row">
+                        <span>Taxa de pagamento:</span>
+                        <span>kz {{ pedido.taxa_pagamento|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
                     {% if pedido.valor_desconto > 0 %}
                         <div class="total-row">
                             <span>Desconto:</span>
@@ -209,6 +215,43 @@
                         <span>kz {{ pedido.valor_total|floatformat:2 }}</span>
                     </div>
                 </div>
+
+
+                <!-- seção de instruções para pagamento por transferência bancária -->
+{% if pedido.metodo_pagamento.has_bank_details %}
+<div class="payment-instructions mt-4">
+    <h5>Instruções de Pagamento</h5>
+    <div class="alert alert-info">
+        <h6>{{ pedido.metodo_pagamento.nome }}</h6>
+        
+        <div class="bank-info">
+            <p><strong>{{ pedido.metodo_pagamento.get_banco_display }}</strong></p>
+            {% if pedido.metodo_pagamento.titular_conta %}
+                <p><strong>Titular:</strong> {{ pedido.metodo_pagamento.titular_conta }}</p>
+            {% endif %}
+            {% if pedido.metodo_pagamento.numero_conta %}
+                <p><strong>Conta:</strong> {{ pedido.metodo_pagamento.numero_conta }}</p>
+            {% endif %}
+            {% if pedido.metodo_pagamento.iban %}
+                <p><strong>IBAN:</strong> {{ pedido.metodo_pagamento.iban }}</p>
+            {% endif %}
+        </div>
+        
+        {% if pedido.metodo_pagamento.instrucoes %}
+            <hr>
+            <h6>Como proceder:</h6>
+            <div>{{ pedido.metodo_pagamento.instrucoes|linebreaks }}</div>
+        {% endif %}
+        
+        <p class="mb-0 mt-3">
+            <strong>Valor a transferir:</strong> kz {{ pedido.valor_total|floatformat:2 }}
+        </p>
+        <p class="mb-0">
+            <strong>Referência:</strong> Pedido #{{ pedido.codigo_pedido }}
+        </p>
+    </div>
+</div>
+{% endif %}
             </div>
             
             <div class="action-buttons">

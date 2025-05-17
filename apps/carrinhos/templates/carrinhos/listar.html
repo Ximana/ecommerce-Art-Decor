@@ -62,7 +62,7 @@
 
 {% block banner %}
     <!-- Banner -->
-    <div class="container-fluid shop-header">
+    <div class="container-fluid cabecalho-pagina">
         <div class="container">
             <h1 class="text-center">Carrinho</h1>
             <p class="text-center">Início - Carrinho</p>
@@ -96,7 +96,7 @@
                                     {% if item.produto.imagens.first %}
                                     <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}" style="max-width: 80px; margin-right: 15px;">
                                     {% else %}
-                                    <img src="{% static 'img/no-image.png' %}" alt="{{ item.produto.nome }}" style="max-width: 80px; margin-right: 15px;">
+                                    <img src="/media/produtos/produto-sem-imagem.png" alt="{{ item.produto.nome }}" style="max-width: 80px; margin-right: 15px;">
                                     {% endif %}
                                     <div>
                                         <span>{{ item.produto.nome }}</span>

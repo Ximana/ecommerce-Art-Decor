@@ -1,49 +1,515 @@
-<!--apps/core/teamplates/core/home.html -->
 {% extends 'administracao/base.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard - E-commerce{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .dashboard-card {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 10px rgba(0,0,0,0.08);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .product-image {
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #eee;
+    }
+    
+    .table-product td {
+        vertical-align: middle;
+    }
+    
+    .welcome-message {
+        background: linear-gradient(to right, #198754, #75c791);
+        border-radius: 10px;
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <h1>Ola mundo</h1>
-
-    
-
-    {% if user.is_authenticated %}
-    <div class="d-flex align-items-center">
-        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
-             style="width: 32px; height: 32px">
-          <i class="fas fa-user-md"></i>
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h2>
+            <p class="text-muted">Visão geral da sua loja</p>
         </div>
-        <span class="ms-2 d-none d-lg-inline">{{ user.get_nome_completo }}</span>
-      </div>
-      
-    <a class="nav-link" href="{% url 'administracao:logout' %}">
-        <i class="fas fa-sign-in-alt"></i>Sair
-    </a>
+        <div class="btn-group">
+            <button class="btn btn-outline-success">
+                <i class="fas fa-download me-2"></i>Relatório
+            </button>
+            <button class="btn btn-success">
+                <i class="fas fa-calendar-alt me-2"></i>Hoje
+            </button>
+        </div>
+    </div>
 
-    {% else %}
-    <a class="nav-link" href="{% url 'administracao:login' %}">
-        <i class="fas fa-sign-in-alt"></i>Login Admin
-    </a>
+    <!-- Mensagem de boas-vindas -->
+    <div class="welcome-message p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-9">
+                <h3>Olá, {{ user.get_full_name|default:user.username }}!</h3>
+                <p class="mb-0">Seja bem-vindo ao painel administrativo do seu e-commerce. Aqui você tem acesso a todas as informações importantes da sua loja.</p>
+            </div>
+            <div class="col-md-3 text-end">
+                <div class="display-3">
+                    <i class="fas fa-store"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <a class="nav-link" href="{% url 'usuarios:login' %}">
-        <i class="fas fa-sign-in-alt"></i>Login Cliente
-    </a>
+    <!-- Cards de estatísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">Vendas Hoje</h6>
+                            <h3 class="fw-bold">kz {{ vendas_hoje|floatformat:2|default:'0.00' }}</h3>
+                        </div>
+                        <div class="stat-icon bg-success-subtle text-success">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            {% if variacao_vendas >= 0 %}
+                                <span class="text-success"><i class="fas fa-arrow-up me-1"></i>{{ variacao_vendas }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down me-1"></i>{{ variacao_vendas_abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted small">desde ontem</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {{ variacao_vendas_abs|default:0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <a class="nav-link" href="">
-        <i class="fas fa-sign-in-alt"></i>Criar Conta
-    </a>
-    {% endif %}
-    
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">Pedidos Novos</h6>
+                            <h3 class="fw-bold">{{ pedidos_novos|default:'0' }}</h3>
+                        </div>
+                        <div class="stat-icon bg-info-subtle text-info">
+                            <i class="fas fa-box fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            {% if variacao_pedidos >= 0 %}
+                                <span class="text-info"><i class="fas fa-arrow-up me-1"></i>{{ variacao_pedidos }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down me-1"></i>{{ variacao_pedidos_abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted small">desde ontem</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: {{ variacao_pedidos_abs|default:0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">Clientes</h6>
+                            <h3 class="fw-bold">{{ total_clientes|default:'0' }}</h3>
+                        </div>
+                        <div class="stat-icon bg-warning-subtle text-warning">
+                            <i class="fas fa-users fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            {% if variacao_clientes >= 0 %}
+                                <span class="text-warning"><i class="fas fa-arrow-up me-1"></i>{{ variacao_clientes }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down me-1"></i>{{ variacao_clientes_abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted small">neste mês</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: {{ variacao_clientes_abs|default:0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">Taxa de Conversão</h6>
+                            <h3 class="fw-bold">{{ taxa_conversao }}%</h3>
+                        </div>
+                        <div class="stat-icon bg-danger-subtle text-danger">
+                            <i class="fas fa-percentage fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            {% if variacao_taxa >= 0 %}
+                                <span class="text-success"><i class="fas fa-arrow-up me-1"></i>{{ variacao_taxa }}%</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-arrow-down me-1"></i>{{ variacao_taxa_abs }}%</span>
+                            {% endif %}
+                            <span class="text-muted small">desde ontem</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar {% if variacao_taxa >= 0 %}bg-success{% else %}bg-danger{% endif %}"
+                                style="width: {{ variacao_taxa_abs|default:0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos e Tabelas -->
+    <div class="row mb-4">
+        <!-- Gráfico de Vendas -->
+        <div class="col-lg-8 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Desempenho de Vendas</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active">Diário</button>
+                            <button class="btn btn-sm btn-outline-secondary">Semanal</button>
+                            <button class="btn btn-sm btn-outline-secondary">Mensal</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo de Produtos -->
+        <div class="col-lg-4 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Resumo dos Produtos</h5>
+                        <a href="{% url 'administracao:listaProdutos' %}" class="btn btn-sm btn-outline-success">
+                            Ver Todos
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 230px;">
+                        <canvas id="productChart"></canvas>
+                    </div>
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Estoque Total</span>
+                            <span class="fw-bold">{{ estatisticas_produtos.total_estoque }} itens</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Categorias Ativas</span>
+                            <span class="fw-bold">{{ estatisticas_produtos.total_categorias }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Produtos Ativos</span>
+                            <span class="fw-bold">{{ estatisticas_produtos.total_produtos }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Últimos Pedidos -->
+        <div class="col-lg-8 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Últimos Pedidos</h5>
+                        <a href="{% url 'administracao:lista_pedidos' %}" class="btn btn-sm btn-outline-success">
+                            Ver Todos
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Data</th>
+                                    <th scope="col">Valor</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in ultimos_pedidos %}
+                                <tr>
+                                    <td>{{ pedido.codigo_pedido }}</td>
+                                    <td>{{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</td>
+                                    <td>{{ pedido.data_pedido|date:"d/m/Y" }}</td>
+                                    <td>kz {{ pedido.valor_total|floatformat:2 }}</td>
+                                    <td>
+                                        {% if pedido.status == 'aguardando_pagamento' %}
+                                            <span class="badge bg-secondary">Aguardando Pagamento</span>
+                                        {% elif pedido.status == 'pagamento_aprovado' %}
+                                            <span class="badge bg-info">Pagamento Aprovado</span>
+                                        {% elif pedido.status == 'em_separacao' %}
+                                            <span class="badge bg-warning">Em Separação</span>
+                                        {% elif pedido.status == 'em_transporte' %}
+                                            <span class="badge bg-primary">Em Transporte</span>
+                                        {% elif pedido.status == 'entregue' %}
+                                            <span class="badge bg-success">Entregue</span>
+                                        {% elif pedido.status == 'cancelado' %}
+                                            <span class="badge bg-danger">Cancelado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'administracao:pedido_detalhe' pedido.id %}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-3">Nenhum pedido registrado.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produtos com Estoque Baixo -->
+        <div class="col-lg-4 mb-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Estoque Crítico</h5>
+                        <a href="{% url 'administracao:listaProdutos' %}" class="btn btn-sm btn-outline-success">
+                            Ver Todos
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-product mb-0">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th scope="col">Produto</th>
+                                    <th scope="col">Estoque</th>
+                                    <th scope="col" class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for produto in produtos_estoque_critico %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                                <i class="fas fa-box"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ produto.nome }}</div>
+                                                <small class="text-muted">{{ produto.categoria.nome }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if produto.estoque <= produto.estoque_minimo %}bg-danger{% else %}bg-warning{% endif %}">
+                                            {{ produto.estoque }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'administracao:produto_detalhe' produto.id %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-plus me-1"></i>Estoque
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-3">Nenhum produto com estoque crítico.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
-
 {% block scriptJS %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
+    // Gráfico de vendas
+    const salesChartCtx = document.getElementById('salesChart').getContext('2d');
     
+    const salesChart = new Chart(salesChartCtx, {
+        type: 'line',
+        data: {
+            labels: {{ dados_vendas.labels|safe }},
+            datasets: [{
+                label: 'Vendas (kz)',
+                data: {{ dados_vendas.data|safe }},
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                borderColor: '#198754',
+                borderWidth: 2,
+                tension: 0.3,
+                pointBackgroundColor: '#198754',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#333',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#198754',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('pt-AO', { 
+                                    style: 'currency', 
+                                    currency: 'AOA',
+                                    currencyDisplay: 'symbol',
+                                    minimumFractionDigits: 0
+                                }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [2, 4],
+                        color: '#e9e9e9'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'kz ' + value.toLocaleString('pt-AO');
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de produtos
+    const productChartCtx = document.getElementById('productChart').getContext('2d');
+    
+    const productChart = new Chart(productChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ dados_produtos_categoria.labels|safe }},
+            datasets: [{
+                data: {{ dados_produtos_categoria.data|safe }},
+                backgroundColor: {{ dados_produtos_categoria.cores|safe }},
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Inicializa todos os tooltips do Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 </script>
 {% endblock %}

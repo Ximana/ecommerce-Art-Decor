@@ -1,0 +1,298 @@
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Método de Pagamento - PulmoVision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-credit-card me-2"></i>Detalhes do Método de Pagamento
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% comment %}{% url 'administracao:dashboard' %}{% endcomment %}" class="text-success">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'administracao:metodo_pagamento_lista' %}" class="text-success">Métodos de Pagamento</a></li>
+                    <li class="breadcrumb-item active">{{ metodo.nome }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{% url 'administracao:metodo_pagamento_lista' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i>Voltar
+            </a>
+            <a href="{% url 'administracao:metodo_pagamento_editar' metodo.pk %}" class="btn btn-success">
+                <i class="fas fa-edit me-1"></i>Editar
+            </a>
+        </div>
+    </div>
+
+    <!-- Detalhes do Método de Pagamento -->
+    <div class="row">
+        <!-- Informações Básicas -->
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2 text-success"></i>Informações do Método de Pagamento
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Nome:</label>
+                                <div class="border-bottom pb-2">{{ metodo.nome }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Tipo:</label>
+                                <div class="border-bottom pb-2">{{ metodo.get_tipo_display }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Status:</label>
+                                <div class="border-bottom pb-2">
+                                    <span class="badge {% if metodo.status %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ metodo.status|yesno:"Ativo,Inativo" }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Visível na Loja:</label>
+                                <div class="border-bottom pb-2">
+                                    <span class="badge {% if metodo.mostrar_na_loja %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ metodo.mostrar_na_loja|yesno:"Sim,Não" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Taxa:</label>
+                                <div class="border-bottom pb-2">{{ metodo.taxa }}%</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Taxa Fixa:</label>
+                                <div class="border-bottom pb-2">{{ metodo.taxa_fixa }} AOA</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Prazo de Processamento:</label>
+                                <div class="border-bottom pb-2">{{ metodo.prazo_processamento }} dia(s)</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Ordem de Exibição:</label>
+                                <div class="border-bottom pb-2">{{ metodo.ordem }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if metodo.descricao %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted d-block mb-2">Descrição:</label>
+                        <div class="border p-3 rounded bg-light">{{ metodo.descricao|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if metodo.instrucoes %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted d-block mb-2">Instruções de Pagamento:</label>
+                        <div class="border p-3 rounded bg-light">{{ metodo.instrucoes|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if metodo.has_bank_details %}
+            <!-- Detalhes Bancários -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-university me-2 text-success"></i>Detalhes Bancários
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Banco:</label>
+                                <div class="border-bottom pb-2">{{ metodo.get_banco_display }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Titular da Conta:</label>
+                                <div class="border-bottom pb-2">{{ metodo.titular_conta|default:"Não informado" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Número da Conta:</label>
+                                <div class="border-bottom pb-2">{{ metodo.numero_conta|default:"Não informado" }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">IBAN:</label>
+                                <div class="border-bottom pb-2">{{ metodo.iban|default:"Não informado" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Limites de Valor -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exchange-alt me-2 text-success"></i>Limites de Transação
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Valor Mínimo:</label>
+                                <div class="border-bottom pb-2">
+                                    {% if metodo.valor_minimo > 0 %}
+                                        {{ metodo.valor_minimo }} AOA
+                                    {% else %}
+                                        <span class="text-muted">Sem limite mínimo</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Valor Máximo:</label>
+                                <div class="border-bottom pb-2">
+                                    {% if metodo.valor_maximo > 0 %}
+                                        {{ metodo.valor_maximo }} AOA
+                                    {% else %}
+                                        <span class="text-muted">Sem limite máximo</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar com imagem e estatísticas -->
+        <div class="col-md-4">
+            <!-- Imagem -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-image me-2 text-success"></i>Imagem do Método
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if metodo.imagem %}
+                        <img src="{{ metodo.imagem.url }}" alt="{{ metodo.nome }}" class="img-thumbnail" style="max-height: 200px;">
+                    {% else %}
+                        <div class="border rounded p-5 text-center bg-light">
+                            <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Nenhuma imagem cadastrada</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Metadados -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2 text-success"></i>Metadados
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Data de Criação:</label>
+                        <div class="border-bottom pb-2">{{ metodo.data_criacao|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Última Atualização:</label>
+                        <div class="border-bottom pb-2">{{ metodo.data_atualizacao|date:"d/m/Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulador de Taxas -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calculator me-2 text-success"></i>Simulador de Taxas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="valorSimulacao">Valor da Transação (AOA):</label>
+                        <input type="number" class="form-control" id="valorSimulacao" step="0.01" value="1000.00">
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="calcularTaxa()">
+                        <i class="fas fa-calculator me-1"></i>Calcular Taxa
+                    </button>
+                    
+                    <div class="mt-3 d-none" id="resultadoSimulacao">
+                        <div class="alert alert-info">
+                            <div class="mb-2">
+                                <span class="fw-bold">Valor da Transação:</span>
+                                <span id="valorTransacao"></span> AOA
+                            </div>
+                            <div class="mb-2">
+                                <span class="fw-bold">Taxa Percentual ({{ metodo.taxa }}%):</span>
+                                <span id="taxaPercentual"></span> AOA
+                            </div>
+                            <div class="mb-2">
+                                <span class="fw-bold">Taxa Fixa:</span>
+                                <span id="taxaFixa">{{ metodo.taxa_fixa }}</span> AOA
+                            </div>
+                            <div class="border-top pt-2 mt-2">
+                                <span class="fw-bold">Taxa Total:</span>
+                                <span id="taxaTotal" class="text-danger"></span> AOA
+                            </div>
+                            <div class="border-top pt-2 mt-2">
+                                <span class="fw-bold">Valor Final:</span>
+                                <span id="valorFinal" class="text-success"></span> AOA
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+function calcularTaxa() {
+    // Obter o valor da transação
+    const valor = parseFloat(document.getElementById('valorSimulacao').value);
+    
+    // Verificar se o valor é válido
+    if (isNaN(valor) || valor <= 0) {
+        alert('Por favor, informe um valor válido para a simulação.');
+        return;
+    }
+    
+    // Calcular taxa percentual
+    const taxaPercentual = (valor * {{ metodo.taxa }}) / 100;
+    // Obter taxa fixa
+    const taxaFixa = {{ metodo.taxa_fixa }};
+    // Calcular taxa total
+    const taxaTotal = taxaPercentual + taxaFixa;
+    // Calcular valor final
+    const valorFinal = valor + taxaTotal;
+    
+    // Exibir os resultados
+    document.getElementById('valorTransacao').textContent = valor.toFixed(2);
+    document.getElementById('taxaPercentual').textContent = taxaPercentual.toFixed(2);
+    document.getElementById('taxaFixa').textContent = taxaFixa;
+    document.getElementById('taxaTotal').textContent = taxaTotal.toFixed(2);
+    document.getElementById('valorFinal').textContent = valorFinal.toFixed(2);
+    
+    // Mostrar div de resultados
+    document.getElementById('resultadoSimulacao').classList.remove('d-none');
+}
+</script>
+{% endblock %}

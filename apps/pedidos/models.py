@@ -153,7 +153,14 @@ class Pedido(models.Model):
         blank=True,
         null=True
     )
-
+    
+    taxa_pagamento = models.DecimalField(
+        'Taxa de Pagamento', 
+        max_digits=10, 
+        decimal_places=2, 
+        default=0
+    ) 
+    
     class Meta:
         verbose_name = 'Pedido'
         verbose_name_plural = 'Pedidos'
@@ -173,6 +180,26 @@ class Pedido(models.Model):
             status=status,
             comentario=comentario
         )
+        
+    def atualizar_status_apos_pagamento(self):
+        """
+        Atualiza o status do pedido após confirmação de pagamento
+        """
+        # Verificar se existem pagamentos e se pelo menos um está aprovado
+        pagamentos_total = self.pagamentos.count()
+        
+        if pagamentos_total > 0:
+            pagamentos_aprovados = self.pagamentos.filter(status='aprovado').count()
+            valor_pago = sum(p.valor for p in self.pagamentos.filter(status='aprovado'))
+            
+            # Se todos os pagamentos estão aprovados e o valor cobre o total
+            if pagamentos_aprovados > 0 and valor_pago >= self.valor_total:
+                if self.status == 'aguardando_pagamento':
+                    self.registrar_status('pagamento_aprovado', 'Pagamento confirmado e aprovado.')
+                    return True
+        
+        return False
+     
 
     def save(self, *args, **kwargs):
         if not self.codigo_pedido:

@@ -1,0 +1,848 @@
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Pedido - {{ pedido.codigo_pedido }}{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    /* CSS Adicional para a página de detalhes do pedido */
+
+/* Cores personalizadas para os diferentes status */
+.bg-aguardando_pagamento-status { background-color: #f0ad4e; }
+.bg-pagamento_aprovado-status { background-color: #5bc0de; }
+.bg-em_separacao-status { background-color: #0275d8; }
+.bg-em_transporte-status { background-color: #6c757d; }
+.bg-entregue-status { background-color: #5cb85c; }
+.bg-cancelado-status { background-color: #d9534f; }
+
+/* Estilização para a linha do tempo de histórico */
+.timeline {
+    position: relative;
+    padding: 0;
+    list-style: none;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    padding-bottom: 20px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-badge {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    z-index: 1;
+}
+
+.timeline-content {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    position: relative;
+}
+
+.timeline-content:before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid #f8f9fa;
+}
+
+/* Estilização para a tabela de itens do pedido */
+.table-items img {
+    max-width: 60px;
+    max-height: 60px;
+    object-fit: contain;
+}
+
+/* Estilização para os cards */
+.card-hover:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease;
+}
+
+/* Cores mais neutras para os badges de status */
+.badge-status-neutral {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+/* Animação para notificações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-wrapper {
+    animation: fadeIn 0.3s ease forwards;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-shopping-cart me-2"></i>Detalhes do Pedido #{{ pedido.codigo_pedido }}
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% comment %}{% url 'administracao:home' %}{% endcomment %}" class="text-success">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'administracao:lista_pedidos' %}" class="text-success">Pedidos</a></li>
+                    <li class="breadcrumb-item active">{{ pedido.codigo_pedido }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{% url 'administracao:lista_pedidos' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i>Voltar
+            </a>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalStatus">
+                <i class="fas fa-exchange-alt me-1"></i>Alterar Status
+            </button>
+        </div>
+    </div>
+
+    <!-- Informações do Pedido -->
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Status atual e informações básicas -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2 text-success"></i>Informações do Pedido
+                    </h5>
+                    <span class="badge bg-{{ pedido.status|cut:'_' }}-status">{{ pedido.get_status_display }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Código do Pedido:</label>
+                                <div class="border-bottom pb-2">{{ pedido.codigo_pedido }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Data do Pedido:</label>
+                                <div class="border-bottom pb-2">{{ pedido.data_pedido|date:"d/m/Y H:i" }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Cliente:</label>
+                                <div class="border-bottom pb-2">
+                                    <a href="{% url 'administracao:usuario_detalhe' pedido.usuario.id %}" class="text-success">
+                                        {{ pedido.usuario.get_full_name }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Subtotal:</label>
+                                <div class="border-bottom pb-2">{{ pedido.subtotal }} AOA</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Frete:</label>
+                                <div class="border-bottom pb-2">{{ pedido.valor_frete }} AOA</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Desconto:</label>
+                                <div class="border-bottom pb-2">{{ pedido.valor_desconto }} AOA</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold text-muted">Total:</label>
+                                <div class="border-bottom pb-2 fw-bold">{{ pedido.valor_total }} AOA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itens do Pedido -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-box me-2 text-success"></i>Itens do Pedido
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Variação</th>
+                                    <th class="text-center">Quantidade</th>
+                                    <th class="text-end">Preço Unitário</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pedido.itens.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'administracao:produto_detalhe' item.produto.id %}" class="text-decoration-none">
+                                            {{ item.produto.nome }}
+                                        </a>
+                                    </td>
+                                    <td>{{ item.variacao.nome|default:"-" }}</td>
+                                    <td class="text-center">{{ item.quantidade }}</td>
+                                    <td class="text-end">{{ item.preco_unitario }} AOA</td>
+                                    <td class="text-end fw-bold">{{ item.preco_total }} AOA</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-3">Nenhum item encontrado.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold">Subtotal:</td>
+                                    <td class="text-end fw-bold">{{ pedido.subtotal }} AOA</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end">Frete:</td>
+                                    <td class="text-end">{{ pedido.valor_frete }} AOA</td>
+                                </tr>
+                                {% if pedido.valor_desconto > 0 %}
+                                <tr>
+                                    <td colspan="4" class="text-end">Desconto:</td>
+                                    <td class="text-end">-{{ pedido.valor_desconto }} AOA</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold">Total:</td>
+                                    <td class="text-end fw-bold">{{ pedido.valor_total }} AOA</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico do Pedido -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2 text-success"></i>Histórico do Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="timeline">
+                        {% for hist in pedido.historico.all %}
+                        <li class="timeline-item">
+                            <div class="timeline-badge bg-{{ hist.status|cut:'_' }}-status"></div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-{{ hist.status|cut:'_' }}-status me-2 text-success">{{ hist.get_status_display }}</span>
+                                    <small class="text-muted">{{ hist.data_alteracao|date:"d/m/Y H:i" }}</small>
+                                </div>
+                                {% if hist.comentario %}
+                                <p class="mb-0 mt-2 text-muted">{{ hist.comentario }}</p>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="text-center py-3">Nenhum histórico encontrado.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Observações do Pedido -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-comment-alt me-2 text-success"></i>Observações
+                    </h5>
+                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalObservacao">
+                        <i class="fas fa-plus me-1"></i>Adicionar Observação
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if pedido.observacoes %}
+                    <div class="bg-light p-3 rounded">
+                        {{ pedido.observacoes|linebreaks }}
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-3">Nenhuma observação registrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Pagamentos -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-2 text-success"></i>Pagamentos
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% for pagamento in pedido.pagamentos.all %}
+                    <div class="border-bottom p-3 {% if pagamento.status == 'aprovado' %}bg-success bg-opacity-10{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="fw-bold">{{ pagamento.metodo.nome }}</span>
+                                {% if pagamento.status == 'aprovado' %}
+                                <i class="fas fa-check-circle text-success ms-1" data-bs-toggle="tooltip" title="Pagamento aprovado"></i>
+                                {% elif pagamento.status == 'pendente' %}
+                                <i class="fas fa-clock text-warning ms-1" data-bs-toggle="tooltip" title="Aguardando confirmação"></i>
+                                {% else %}
+                                <i class="fas fa-times-circle text-danger ms-1" data-bs-toggle="tooltip" title="Pagamento recusado"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="badge {% if pagamento.status == 'aprovado' %}bg-success{% elif pagamento.status == 'pendente' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ pagamento.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-2">
+                                    <small class="text-muted d-block">Valor:</small>
+                                    <span class="fw-bold">{{ pagamento.valor }} AOA</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-2">
+                                    <small class="text-muted d-block">Data:</small>
+                                    <span>{{ pagamento.data_criacao|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                            {% if pagamento.comprovante %}
+                                <div class="mt-2">
+                                    <a href="{{ pagamento.comprovante.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i> Comprovante
+                                    </a>
+                                </div>
+                                {% endif %}
+                        </div>
+                        
+                        {% if pagamento.codigo_transacao %}
+                        <div class="bg-light rounded p-2 mb-2">
+                            <small class="text-muted d-block">Código da Transação:</small>
+                            <span class="text-monospace">{{ pagamento.codigo_transacao }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if pagamento.observacoes_internas %}
+                        <div class="rounded p-2 mb-2 border border-secondary border-opacity-25">
+                            <small class="text-muted d-block">Observações:</small>
+                            <div class="small">{{ pagamento.observacoes_internas|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        
+                        
+                        {% if pagamento.status == 'pendente' %}
+                        <div class="d-flex justify-content-end mt-3">
+                            <button 
+                                class="btn btn-sm btn-outline-danger me-2" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#modalStatusPagamento" 
+                                data-pagamento-id="{{ pagamento.id }}"
+                                data-pagamento-valor="{{ pagamento.valor }}"
+                                data-pagamento-metodo="{{ pagamento.metodo.nome }}"
+                                data-status-predefinido="recusado">
+                                <i class="fas fa-times me-1"></i>Recusar
+                            </button>
+                            <button 
+                                class="btn btn-sm btn-outline-success" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#modalStatusPagamento" 
+                                data-pagamento-id="{{ pagamento.id }}"
+                                data-pagamento-valor="{{ pagamento.valor }}"
+                                data-pagamento-metodo="{{ pagamento.metodo.nome }}"
+                                data-status-predefinido="aprovado">
+                                <i class="fas fa-check me-1"></i>Aprovar
+                            </button>
+                            
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-money-bill-wave fa-3x mb-3 text-muted"></i>
+                        <p>Nenhum pagamento registrado para este pedido.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Informações de Envio -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shipping-fast me-2 text-success"></i>Informações de Envio
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Forma de Envio:</label>
+                        <div class="border-bottom pb-2">{{ pedido.forma_envio.get_nome_display }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Valor do Frete:</label>
+                        <div class="border-bottom pb-2">{{ pedido.valor_frete }} AOA</div>
+                    </div>
+                    {% if pedido.forma_envio.prazo_entrega %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Prazo de Entrega:</label>
+                        <div class="border-bottom pb-2">{{ pedido.forma_envio.prazo_entrega }} dia(s)</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Endereço de Entrega -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-map-marker-alt me-2 text-success"></i>Endereço de Entrega
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <address class="mb-0">
+                        <strong>{{ pedido.endereco_entrega.nome_destinatario }}</strong><br>
+                        {{ pedido.endereco_entrega.logradouro }}, {{ pedido.endereco_entrega.numero }}<br>
+                        {% if pedido.endereco_entrega.complemento %}
+                            {{ pedido.endereco_entrega.complemento }}<br>
+                        {% endif %}
+                        {{ pedido.endereco_entrega.bairro }}<br>
+                        {{ pedido.endereco_entrega.cidade }}, {{ pedido.endereco_entrega.provincia }}<br>
+                        {% if pedido.endereco_entrega.cep %}CEP: {{ pedido.endereco_entrega.cep }}<br>{% endif %}
+                        {% if pedido.endereco_entrega.telefone %}Tel: {{ pedido.endereco_entrega.telefone }}{% endif %}
+                    </address>
+                </div>
+            </div>
+            
+            {% if pedido.endereco_cobranca %}
+            <!-- Endereço de Cobrança -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-invoice me-2 text-success"></i>Endereço de Cobrança
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <address class="mb-0">
+                        <strong>{{ pedido.endereco_cobranca.nome_destinatario }}</strong><br>
+                        {{ pedido.endereco_cobranca.logradouro }}, {{ pedido.endereco_cobranca.numero }}<br>
+                        {% if pedido.endereco_cobranca.complemento %}
+                            {{ pedido.endereco_cobranca.complemento }}<br>
+                        {% endif %}
+                        {{ pedido.endereco_cobranca.bairro }}<br>
+                        {{ pedido.endereco_cobranca.cidade }}, {{ pedido.endereco_cobranca.provincia }}<br>
+                        {% if pedido.endereco_cobranca.cep %}CEP: {{ pedido.endereco_cobranca.cep }}<br>{% endif %}
+                        {% if pedido.endereco_cobranca.telefone %}Tel: {{ pedido.endereco_cobranca.telefone }}{% endif %}
+                    </address>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Alterar Status do Pedido -->
+<div class="modal fade" id="modalStatus" tabindex="-1" aria-labelledby="modalStatusLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalStatusLabel">Alterar Status do Pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form id="formAlterarStatus" method="post" data-url="{% url 'administracao:alterar_status_pedido' pedido.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="statusPedido" class="form-label">Novo Status</label>
+                        <select class="form-select" id="statusPedido" name="status" required>
+                            <option value="">Selecione um status</option>
+                            {% for status_valor, status_nome in status_opcoes %}
+                            <option value="{{ status_valor }}" {% if pedido.status == status_valor %}selected{% endif %}>
+                                {{ status_nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comentarioPedido" class="form-label">Comentário (opcional)</label>
+                        <textarea class="form-control" id="comentarioPedido" name="comentario" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Alterar Status do Pagamento -->
+<div class="modal fade" id="modalStatusPagamento" tabindex="-1" aria-labelledby="modalStatusPagamentoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalStatusPagamentoLabel">Alterar Status do Pagamento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form id="formAlterarStatusPagamento" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <p class="mb-1">Método: <span id="pagamentoMetodo"></span></p>
+                        <p class="mb-0">Valor: <span id="pagamentoValor"></span> AOA</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusPagamento" class="form-label">Novo Status</label>
+                        <select class="form-select" id="statusPagamento" name="status" required>
+                            <option value="">Selecione um status</option>
+                            {% for status_valor, status_nome in pagamento_status_opcoes %}
+                            <option value="{{ status_valor }}">{{ status_nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observacaoPagamento" class="form-label">Observação (opcional)</label>
+                        <textarea class="form-control" id="observacaoPagamento" name="observacao" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Observação - Versão melhorada -->
+<div class="modal fade" id="modalObservacao" tabindex="-1" aria-labelledby="modalObservacaoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalObservacaoLabel">Adicionar Observação</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form action="{% url 'administracao:adicionar_observacao_pedido' pedido.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        As observações são visíveis apenas para administradores e ficam registradas com data e hora.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="textoObservacao" class="form-label">Observação</label>
+                        <textarea class="form-control" id="textoObservacao" name="observacao" rows="4" required 
+                            placeholder="Digite aqui suas anotações sobre este pedido..."></textarea>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="observacaoImportante" name="importante">
+                        <label class="form-check-label" for="observacaoImportante">
+                            Marcar como observação importante
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="notificarEquipe" name="notificar_equipe">
+                        <label class="form-check-label" for="notificarEquipe">
+                            Notificar equipe de logística
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i>Salvar Observação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Definir cores para os status do pedido
+        const statusColors = {
+            'aguardando_pagamento': 'warning',
+            'pagamento_aprovado': 'info',
+            'em_separacao': 'primary',
+            'em_transporte': 'secondary',
+            'entregue': 'success',
+            'cancelado': 'danger'
+        };
+    
+        // Aplicar cores aos badges de status
+        document.querySelectorAll('[class*="-status"]').forEach(el => {
+            for (const [status, color] of Object.entries(statusColors)) {
+                if (el.classList.contains(`bg-${status}-status`)) {
+                    el.classList.remove(`bg-${status}-status`);
+                    el.classList.add(`bg-${color}`);
+                    break;
+                }
+            }
+        });
+        
+        // Manipular o envio do formulário de alteração de status via AJAX
+        const formStatus = document.getElementById('formAlterarStatus');
+        if (formStatus) {
+            formStatus.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const url = this.getAttribute('data-url');
+                const formData = new FormData(this);
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'sucesso') {
+                        // Fechar o modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalStatus'));
+                        modal.hide();
+                        
+                        // Atualizar informações na página
+                        document.querySelector('.card-header .badge').textContent = data.novo_status;
+                        
+                        // Atualizar histórico
+                        // Idealmente recarregar a seção de histórico, mas por simplicidade:
+                        // Você pode optar por recarregar a página
+                        window.location.reload();
+                        
+                        // Mostrar mensagem de sucesso
+                        mostrarAlerta('Status atualizado com sucesso!', 'success');
+                    } else {
+                        mostrarAlerta('Erro ao atualizar status: ' + data.mensagem, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('Erro ao processar a solicitação.', 'danger');
+                });
+            });
+
+            // Adicionar verificação para mudanças de status de pedido
+            const statusPedidoSelect = document.getElementById('statusPedido');
+            
+            statusPedidoSelect.addEventListener('change', function() {
+                const currentStatus = '{{ pedido.status }}';
+                const newStatus = this.value;
+                const comentarioField = document.getElementById('comentarioPedido');
+                
+                // Se estiver avançando de aguardando_pagamento para outro estado
+                if (currentStatus === 'aguardando_pagamento' && ['pagamento_aprovado', 'em_separacao', 'em_transporte', 'entregue'].includes(newStatus)) {
+                    // Verificar se tem alerta existente
+                    let alertDiv = document.querySelector('#alertaStatusPedido');
+                    if (!alertDiv) {
+                        alertDiv = document.createElement('div');
+                        alertDiv.id = 'alertaStatusPedido';
+                        alertDiv.classList.add('alert', 'alert-warning', 'mt-3');
+                        alertDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i> Certifique-se de que o pagamento foi confirmado antes de alterar o status do pedido.';
+                        
+                        comentarioField.parentNode.insertAdjacentElement('afterend', alertDiv);
+                    }
+                } else {
+                    // Remover alerta se existir
+                    const alertDiv = document.querySelector('#alertaStatusPedido');
+                    if (alertDiv) {
+                        alertDiv.remove();
+                    }
+                }
+            });
+        }
+        
+        // Manipular modal de status de pagamento
+        const modalStatusPagamento = document.getElementById('modalStatusPagamento');
+        if (modalStatusPagamento) {
+            modalStatusPagamento.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const pagamentoId = button.getAttribute('data-pagamento-id');
+                const pagamentoValor = button.getAttribute('data-pagamento-valor');
+                const pagamentoMetodo = button.getAttribute('data-pagamento-metodo');
+                const statusPredefinido = button.getAttribute('data-status-predefinido');
+                
+                document.getElementById('pagamentoMetodo').textContent = pagamentoMetodo;
+                document.getElementById('pagamentoValor').textContent = pagamentoValor;
+                
+                const form = this.querySelector('#formAlterarStatusPagamento');
+                form.setAttribute('action', `/administracao/pedidos/pagamento/${pagamentoId}/alterar-status/`);
+                
+                // Se tiver um status predefinido (dos botões rápidos de aprovar/recusar)
+                if (statusPredefinido) {
+                    const statusSelect = document.getElementById('statusPagamento');
+                    for(let i = 0; i < statusSelect.options.length; i++) {
+                        if (statusSelect.options[i].value === statusPredefinido) {
+                            statusSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    // Adicionar mensagem automática dependendo da ação
+                    const observacaoField = document.getElementById('observacaoPagamento');
+                    if (statusPredefinido === 'aprovado') {
+                        observacaoField.value = 'Pagamento confirmado manualmente pelo administrador. Status do pedido atualizado para "Pagamento Aprovado".';
+                    } else if (statusPredefinido === 'recusado') {
+                        observacaoField.value = 'Pagamento recusado pelo administrador.';
+                    }
+                }
+            });
+            
+            // Adicionar alertas sobre mudanças de status em cascata
+            const statusPagamentoSelect = document.getElementById('statusPagamento');
+            if (statusPagamentoSelect) {
+                statusPagamentoSelect.addEventListener('change', function() {
+                    const infoAlert = document.querySelector('#modalStatusPagamento .alert-info');
+                    
+                    if (this.value === 'aprovado') {
+                        if (!infoAlert.querySelector('.status-info')) {
+                            const statusInfo = document.createElement('p');
+                            statusInfo.classList.add('status-info', 'mb-0', 'mt-2', 'text-success');
+                            statusInfo.innerHTML = '<i class="fas fa-info-circle me-1"></i> Ao aprovar o pagamento, o status do pedido será automaticamente atualizado para "Pagamento Aprovado" caso esteja aguardando pagamento.';
+                            infoAlert.appendChild(statusInfo);
+                        }
+                    } else {
+                        const statusInfo = infoAlert.querySelector('.status-info');
+                        if (statusInfo) {
+                            statusInfo.remove();
+                        }
+                    }
+                });
+            }
+            
+            // Manipular o envio do formulário de alteração de status de pagamento via AJAX
+            const formPagamento = document.getElementById('formAlterarStatusPagamento');
+            if (formPagamento) {
+                formPagamento.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const url = this.getAttribute('action');
+                    const formData = new FormData(this);
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'sucesso') {
+                            // Fechar o modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('modalStatusPagamento'));
+                            modal.hide();
+                            
+                            // Recarregar a página para mostrar as mudanças
+                            window.location.reload();
+                            
+                            // Mostrar mensagem de sucesso
+                            mostrarAlerta('Status do pagamento atualizado com sucesso!', 'success');
+                        } else {
+                            mostrarAlerta('Erro ao atualizar status: ' + data.mensagem, 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        mostrarAlerta('Erro ao processar a solicitação.', 'danger');
+                    });
+                });
+            }
+        }
+        
+        // Função para mostrar alertas
+        function mostrarAlerta(mensagem, tipo) {
+            const alertPlaceholder = document.querySelector('.container-fluid');
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('alert-wrapper', 'position-fixed', 'top-0', 'end-0', 'p-3');
+            wrapper.style.zIndex = '1050';
+            
+            wrapper.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+            `;
+            
+            alertPlaceholder.appendChild(wrapper);
+            
+            // Auto-fechar após 5 segundos
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+                alert.close();
+            }, 5000);
+        }
+        
+        // Iniciar tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+    
+    // Função para formatar valores monetários
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' });
+    }
+
+    // Copiar para a área de transferência
+    function copiarParaClipboard(text) {
+        navigator.clipboard.writeText(text).then(
+            function() {
+                mostrarAlerta('Texto copiado para a área de transferência!', 'success');
+            }, 
+            function(err) {
+                mostrarAlerta('Erro ao copiar texto: ' + err, 'danger');
+            }
+        );
+    }
+
+    // Adicionar botões para copiar informações importantes
+    document.querySelectorAll('[data-clipboard]').forEach(el => {
+        el.addEventListener('click', function() {
+            const text = this.getAttribute('data-clipboard');
+            copiarParaClipboard(text);
+        });
+    });
+</script>
+{% endblock %}

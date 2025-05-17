@@ -1,0 +1,540 @@
+{% extends 'administracao/base.html' %}
+{% load static %}
+
+{% block title %}Pedidos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success mb-0">
+                <i class="fas fa-shopping-cart me-2"></i>Pedidos
+            </h2>
+            <p class="text-muted">Gerenciamento de pedidos do sistema</p>
+        </div>
+        <div>
+            <a href="#" class="btn btn-outline-success me-2" onclick="exportarPedidos()">
+                <i class="fas fa-file-export me-2"></i>Exportar
+            </a>
+            <a href="#" class="btn btn-success" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimir
+            </a>
+        </div>
+    </div>
+
+    <!-- Estatísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-light border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total de Pedidos</h6>
+                            <h3 class="mb-0">{{ total_pedidos }}</h3>
+                        </div>
+                        <div class="rounded-circle bg-success p-3 text-white">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Aguardando Pagamento</h6>
+                            <h3 class="mb-0">{{ pedidos_aguardando_pagamento }}</h3>
+                        </div>
+                        <div class="rounded-circle bg-warning p-3 text-white">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Em Andamento</h6>
+                            <h3 class="mb-0">{{ pedidos_em_andamento }}</h3>
+                        </div>
+                        <div class="rounded-circle bg-info p-3 text-white">
+                            <i class="fas fa-shipping-fast fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Entregues</h6>
+                            <h3 class="mb-0">{{ pedidos_entregues }}</h3>
+                        </div>
+                        <div class="rounded-circle bg-success p-3 text-white">
+                            <i class="fas fa-check-circle fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3" action="{% url 'administracao:lista_pedidos' %}" method="GET" id="form-filtro">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search"
+                            placeholder="Código ou cliente"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">Todos os Status</option>
+                        {% for key, value in status_opcoes.items %}
+                        <option value="{{ key }}" 
+                                {% if key == status_selecionado %}selected{% endif %}>
+                            {{ value }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="metodo_pagamento" class="form-select">
+                        <option value="">Todos os Pagamentos</option>
+                        {% for metodo in metodos_pagamento %}
+                        <option value="{{ metodo.id }}" 
+                                {% if metodo.id|stringformat:'s' == metodo_pagamento_selecionado %}selected{% endif %}>
+                            {{ metodo.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="periodo" id="periodo" class="form-select" onchange="toggleDataPersonalizada()">
+                        <option value="">Qualquer Data</option>
+                        <option value="hoje" {% if periodo_selecionado == 'hoje' %}selected{% endif %}>Hoje</option>
+                        <option value="ontem" {% if periodo_selecionado == 'ontem' %}selected{% endif %}>Ontem</option>
+                        <option value="semana" {% if periodo_selecionado == 'semana' %}selected{% endif %}>Últimos 7 dias</option>
+                        <option value="mes" {% if periodo_selecionado == 'mes' %}selected{% endif %}>Últimos 30 dias</option>
+                        <option value="personalizado" {% if periodo_selecionado == 'personalizado' %}selected{% endif %}>Data Personalizada</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="data-personalizada" style="display: none;">
+                    <div class="input-group">
+                        <input type="date" name="data_inicio" class="form-control" value="{{ data_inicio }}">
+                        <span class="input-group-text bg-light">até</span>
+                        <input type="date" name="data_fim" class="form-control" value="{{ data_fim }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros Ativos -->
+    {% if search_query or status_selecionado or metodo_pagamento_selecionado or periodo_selecionado %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex align-items-center flex-wrap">
+                <span class="me-2 text-muted">Filtros ativos:</span>
+                
+                {% if search_query %}
+                <span class="badge bg-secondary me-2 mb-2">
+                    Busca: {{ search_query }}
+                    <a href="{% url 'pedidos:lista_pedidos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if status_selecionado %}
+                <span class="badge bg-secondary me-2 mb-2">
+                    Status: 
+                    {% for key, value in status_opcoes.items %}
+                        {% if key == status_selecionado %}
+                            {{ value }}
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'administracao:lista_pedidos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if metodo_pagamento_selecionado %}
+                <span class="badge bg-secondary me-2 mb-2">
+                    Método Pagamento: 
+                    {% for metodo in metodos_pagamento %}
+                        {% if metodo.id|stringformat:'s' == metodo_pagamento_selecionado %}
+                            {{ metodo.nome }}
+                        {% endif %}
+                    {% endfor %}
+                    <a href="{% url 'administracao:lista_pedidos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                {% if periodo_selecionado %}
+                <span class="badge bg-secondary me-2 mb-2">
+                    Período: 
+                    {% if periodo_selecionado == 'hoje' %}Hoje
+                    {% elif periodo_selecionado == 'ontem' %}Ontem
+                    {% elif periodo_selecionado == 'semana' %}Últimos 7 dias
+                    {% elif periodo_selecionado == 'mes' %}Últimos 30 dias
+                    {% elif periodo_selecionado == 'personalizado' %}{{ data_inicio }} até {{ data_fim }}
+                    {% endif %}
+                    <a href="{% url 'administracao:lista_pedidos' %}" class="text-white ms-1">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                </span>
+                {% endif %}
+                
+                <a href="{% url 'administracao:lista_pedidos' %}" class="btn btn-sm btn-outline-secondary ms-auto">
+                    <i class="fas fa-times me-1"></i>Limpar Filtros
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Pedidos -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th colspan="8" class="ps-3">
+                                Pedidos
+                                <div class="dropdown d-inline-block float-end me-2">
+                                    <button class="btn btn-sm btn-dark dropdown-toggle" type="button" id="dropdownOrdenar" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Ordenar
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownOrdenar">
+                                        <li><a class="dropdown-item {% if ordenacao == '-data_pedido' %}active{% endif %}" href="?{{ request.GET.urlencode }}&ordenacao=-data_pedido">Mais Recentes</a></li>
+                                        <li><a class="dropdown-item {% if ordenacao == 'data_pedido' %}active{% endif %}" href="?{{ request.GET.urlencode }}&ordenacao=data_pedido">Mais Antigos</a></li>
+                                        <li><a class="dropdown-item {% if ordenacao == '-valor_total' %}active{% endif %}" href="?{{ request.GET.urlencode }}&ordenacao=-valor_total">Maior Valor</a></li>
+                                        <li><a class="dropdown-item {% if ordenacao == 'valor_total' %}active{% endif %}" href="?{{ request.GET.urlencode }}&ordenacao=valor_total">Menor Valor</a></li>
+                                    </ul>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr class="bg-success text-white">
+                            <th scope="col" class="ps-3">Código</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Valor Total</th>
+                            <th scope="col">Método Pagamento</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="fw-bold">{{ pedido.codigo_pedido }}</div>
+                                <small class="text-muted">{{ pedido.itens.count }} item(ns)</small>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div>{{ pedido.usuario.nome }}</div>
+                                        <small class="text-muted">{{ pedido.usuario.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>{{ pedido.data_pedido|date:"d/m/Y" }}</div>
+                                <small class="text-muted">{{ pedido.data_pedido|date:"H:i" }}</small>
+                            </td>
+                            <td class="fw-bold">kz {{ pedido.valor_total|floatformat:2 }}</td>
+                            <td>
+                                {% if pedido.metodo_pagamento %}
+                                <span class="badge bg-light text-dark">
+                                    {{ pedido.metodo_pagamento.nome }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">Não definido</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pedido.status == 'aguardando_pagamento' %}
+                                <span class="badge bg-warning text-dark">{{ pedido.get_status_display }}</span>
+                                {% elif pedido.status == 'pagamento_aprovado' %}
+                                <span class="badge bg-info text-white">{{ pedido.get_status_display }}</span>
+                                {% elif pedido.status == 'em_separacao' %}
+                                <span class="badge bg-primary">{{ pedido.get_status_display }}</span>
+                                {% elif pedido.status == 'em_transporte' %}
+                                <span class="badge bg-info">{{ pedido.get_status_display }}</span>
+                                {% elif pedido.status == 'entregue' %}
+                                <span class="badge bg-success">{{ pedido.get_status_display }}</span>
+                                {% elif pedido.status == 'cancelado' %}
+                                <span class="badge bg-danger">{{ pedido.get_status_display }}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ pedido.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group">
+                                    <a href="{% url 'administracao:pedido_detalhe' pk=pedido.pk %}" 
+                                       class="btn btn-sm btn-outline-success"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes do pedido">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            onclick="alterarStatus('{{ pedido.codigo_pedido }}', '{{ pedido.status }}')"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Alterar status">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                    <a href="#" 
+                                       class="btn btn-sm btn-outline-secondary"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Imprimir pedido">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                    <p>
+                                        {% if search_query or status_selecionado or metodo_pagamento_selecionado or periodo_selecionado %}
+                                            Nenhum pedido encontrado com os filtros aplicados.
+                                            <a href="{% url 'administracao:lista_pedidos' %}" class="btn btn-sm btn-outline-secondary ms-2">
+                                                Limpar filtros
+                                            </a>
+                                        {% else %}
+                                            Nenhum pedido cadastrado.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if status_selecionado %}&status={{ status_selecionado }}{% endif %}{% if metodo_pagamento_selecionado %}&metodo_pagamento={{ metodo_pagamento_selecionado }}{% endif %}{% if periodo_selecionado %}&periodo={{ periodo_selecionado }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio }}{% endif %}{% if data_fim %}&data_fim={{ data_fim }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link bg-success border-success">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if status_selecionado %}&status={{ status_selecionado }}{% endif %}{% if metodo_pagamento_selecionado %}&metodo_pagamento={{ metodo_pagamento_selecionado }}{% endif %}{% if periodo_selecionado %}&periodo={{ periodo_selecionado }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio }}{% endif %}{% if data_fim %}&data_fim={{ data_fim }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if status_selecionado %}&status={{ status_selecionado }}{% endif %}{% if metodo_pagamento_selecionado %}&metodo_pagamento={{ metodo_pagamento_selecionado }}{% endif %}{% if periodo_selecionado %}&periodo={{ periodo_selecionado }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio }}{% endif %}{% if data_fim %}&data_fim={{ data_fim }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Modal Alterar Status -->
+<div class="modal fade" id="modalAlterarStatus" tabindex="-1" aria-labelledby="modalAlterarStatusLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalAlterarStatusLabel">Alterar Status do Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'administracao:alterar_status' %}" method="post" id="formAlterarStatus">
+                {% csrf_token %}
+                <input type="hidden" name="codigo_pedido" id="codigo_pedido_status">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="status_atual" class="form-label">Status Atual</label>
+                        <input type="text" class="form-control" id="status_atual" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="novo_status" class="form-label">Novo Status</label>
+                        <select name="novo_status" id="novo_status" class="form-select" required>
+                            <option value="">Selecione o Status</option>
+                            {% for key, value in status_opcoes.items %}
+                            <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Comentário (opcional)</label>
+                        <textarea name="comentario" id="comentario" class="form-control" rows="3" placeholder="Adicione um comentário sobre a alteração de status"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Alteração</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Mostrar campos de data personalizada se essa opção for selecionada
+function toggleDataPersonalizada() {
+    const periodo = document.getElementById('periodo').value;
+    const camposData = document.getElementById('data-personalizada');
+    
+    if (periodo === 'personalizado') {
+        camposData.style.display = 'block';
+    } else {
+        camposData.style.display = 'none';
+    }
+}
+
+// Função para abrir modal de alteração de status
+function alterarStatus(codigo, statusAtual) {
+    document.getElementById('codigo_pedido_status').value = codigo;
+    
+    // Mapear o status atual para exibição
+    const statusDisplay = {
+        'aguardando_pagamento': 'Aguardando Pagamento',
+        'pagamento_aprovado': 'Pagamento Aprovado',
+        'em_separacao': 'Em Separação',
+        'em_transporte': 'Em Transporte',
+        'entregue': 'Entregue',
+        'cancelado': 'Cancelado'
+    };
+    
+    document.getElementById('status_atual').value = statusDisplay[statusAtual] || statusAtual;
+    
+    // Configurar as opções disponíveis com base no status atual
+    const selectNovoStatus = document.getElementById('novo_status');
+    selectNovoStatus.innerHTML = ''; // Limpar opções existentes
+    
+    // Adicionar opção padrão
+    const optionPadrao = document.createElement('option');
+    optionPadrao.value = '';
+    optionPadrao.textContent = 'Selecione o Status';
+    selectNovoStatus.appendChild(optionPadrao);
+    
+    // Definir transições permitidas
+    const transicoesPermitidas = {
+        'aguardando_pagamento': ['pagamento_aprovado', 'cancelado'],
+        'pagamento_aprovado': ['em_separacao', 'cancelado'],
+        'em_separacao': ['em_transporte', 'cancelado'],
+        'em_transporte': ['entregue', 'cancelado'],
+        'entregue': [],
+        'cancelado': ['aguardando_pagamento']
+    };
+    
+    // Lista completa de status
+    const todosStatus = {
+        'aguardando_pagamento': 'Aguardando Pagamento',
+        'pagamento_aprovado': 'Pagamento Aprovado',
+        'em_separacao': 'Em Separação',
+        'em_transporte': 'Em Transporte',
+        'entregue': 'Entregue',
+        'cancelado': 'Cancelado'
+    };
+    
+    // Adicionar apenas opções permitidas
+    const statusPermitidos = transicoesPermitidas[statusAtual] || [];
+    
+    statusPermitidos.forEach(status => {
+        const option = document.createElement('option');
+        option.value = status;
+        option.textContent = todosStatus[status];
+        selectNovoStatus.appendChild(option);
+    });
+    
+    // Abre o modal
+    new bootstrap.Modal(document.getElementById('modalAlterarStatus')).show();
+}
+
+// Adicionar validação ao formulário de alteração de status
+document.addEventListener('DOMContentLoaded', function() {
+    const formAlterarStatus = document.getElementById('formAlterarStatus');
+    
+    if (formAlterarStatus) {
+        formAlterarStatus.addEventListener('submit', function(event) {
+            const novoStatus = document.getElementById('novo_status').value;
+            
+            if (!novoStatus) {
+                event.preventDefault();
+                alert('Por favor, selecione um novo status para o pedido.');
+            }
+        });
+    }
+});
+
+
+// Função para exportar pedidos
+function exportarPedidos() {
+    alert('Funcionalidade de exportação será implementada em breve!');
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    toggleDataPersonalizada();
+    
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %}

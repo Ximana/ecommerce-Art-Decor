@@ -21,89 +21,209 @@
     <!-- Formulário de Edição -->
     <div class="card shadow-sm">
         <div class="card-body">
-            <form class="row" method="POST">
+            <form class="row g-3" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 
+                <!-- Informações básicas -->
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label for="nome">Nome do Método</label>
-                        <input
-                            type="text"
-                            class="form-control {% if form.nome.errors %}is-invalid{% endif %}"
-                            id="nome"
-                            name="nome"
-                            value="{{ form.nome.value|default:'' }}"
-                            required
-                        />
+                        <label for="{{ form.nome.id_for_label }}">Nome do Método</label>
+                        {{ form.nome }}
                         {% if form.nome.errors %}
-                            <div class="invalid-feedback">{{ form.nome.errors|first }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="taxa">Taxa (%)</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            class="form-control {% if form.taxa.errors %}is-invalid{% endif %}"
-                            id="taxa"
-                            name="taxa"
-                            value="{{ form.taxa.value|default:'0.00' }}"
-                        />
-                        {% if form.taxa.errors %}
-                            <div class="invalid-feedback">{{ form.taxa.errors|first }}</div>
+                            <div class="invalid-feedback d-block">{{ form.nome.errors|first }}</div>
                         {% endif %}
                     </div>
                 </div>
                 
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label for="prazo_processamento">Prazo de Processamento (dias)</label>
-                        <input
-                            type="number"
-                            class="form-control {% if form.prazo_processamento.errors %}is-invalid{% endif %}"
-                            id="prazo_processamento"
-                            name="prazo_processamento"
-                            value="{{ form.prazo_processamento.value|default:'0' }}"
-                        />
-                        {% if form.prazo_processamento.errors %}
-                            <div class="invalid-feedback">{{ form.prazo_processamento.errors|first }}</div>
+                        <label for="{{ form.tipo.id_for_label }}">Tipo de Pagamento</label>
+                        {{ form.tipo }}
+                        {% if form.tipo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.tipo.errors|first }}</div>
                         {% endif %}
                     </div>
-                    
+                </div>
+                
+                <!-- Detalhes bancários -->
+                <div class="col-md-6 bancario-field">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.banco.id_for_label }}">Banco</label>
+                        {{ form.banco }}
+                        {% if form.banco.errors %}
+                            <div class="invalid-feedback d-block">{{ form.banco.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.banco.help_text }}</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 bancario-field">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.titular_conta.id_for_label }}">Titular da Conta</label>
+                        {{ form.titular_conta }}
+                        {% if form.titular_conta.errors %}
+                            <div class="invalid-feedback d-block">{{ form.titular_conta.errors|first }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6 bancario-field">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.numero_conta.id_for_label }}">Número da Conta</label>
+                        {{ form.numero_conta }}
+                        {% if form.numero_conta.errors %}
+                            <div class="invalid-feedback d-block">{{ form.numero_conta.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.numero_conta.help_text }}</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 bancario-field">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.iban.id_for_label }}">IBAN</label>
+                        {{ form.iban }}
+                        {% if form.iban.errors %}
+                            <div class="invalid-feedback d-block">{{ form.iban.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.iban.help_text }}</small>
+                    </div>
+                </div>
+                
+                <!-- Taxas e valores -->
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.taxa.id_for_label }}">Taxa (%)</label>
+                        {{ form.taxa }}
+                        {% if form.taxa.errors %}
+                            <div class="invalid-feedback d-block">{{ form.taxa.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.taxa.help_text }}</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.taxa_fixa.id_for_label }}">Taxa Fixa (AOA)</label>
+                        {{ form.taxa_fixa }}
+                        {% if form.taxa_fixa.errors %}
+                            <div class="invalid-feedback d-block">{{ form.taxa_fixa.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.taxa_fixa.help_text }}</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.valor_minimo.id_for_label }}">Valor Mínimo (AOA)</label>
+                        {{ form.valor_minimo }}
+                        {% if form.valor_minimo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.valor_minimo.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.valor_minimo.help_text }}</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.valor_maximo.id_for_label }}">Valor Máximo (AOA)</label>
+                        {{ form.valor_maximo }}
+                        {% if form.valor_maximo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.valor_maximo.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.valor_maximo.help_text }}</small>
+                    </div>
+                </div>
+                
+                <!-- Processamento -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.prazo_processamento.id_for_label }}">Prazo de Processamento (dias)</label>
+                        {{ form.prazo_processamento }}
+                        {% if form.prazo_processamento.errors %}
+                            <div class="invalid-feedback d-block">{{ form.prazo_processamento.errors|first }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.ordem.id_for_label }}">Ordem de Exibição</label>
+                        {{ form.ordem }}
+                        {% if form.ordem.errors %}
+                            <div class="invalid-feedback d-block">{{ form.ordem.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.ordem.help_text }}</small>
+                    </div>
+                </div>
+                
+                <!-- Descrições -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.descricao.id_for_label }}">Descrição</label>
+                        {{ form.descricao }}
+                        {% if form.descricao.errors %}
+                            <div class="invalid-feedback d-block">{{ form.descricao.errors|first }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="{{ form.instrucoes.id_for_label }}">Instruções de Pagamento</label>
+                        {{ form.instrucoes }}
+                        {% if form.instrucoes.errors %}
+                            <div class="invalid-feedback d-block">{{ form.instrucoes.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.instrucoes.help_text }}</small>
+                    </div>
+                </div>
+                
+                <!-- Status e visibilidade -->
+                <div class="col-md-6">
                     <div class="form-group mb-3">
                         <div class="form-check">
-                            <input 
-                                type="checkbox" 
-                                class="form-check-input {% if form.status.errors %}is-invalid{% endif %}"
-                                id="status" 
-                                name="status"
-                                {% if form.status.value %}checked{% endif %}
-                            >
-                            <label class="form-check-label" for="status">Método Ativo</label>
+                            {{ form.status }}
+                            <label class="form-check-label" for="{{ form.status.id_for_label }}">Método Ativo</label>
                             {% if form.status.errors %}
-                                <div class="invalid-feedback">{{ form.status.errors|first }}</div>
+                                <div class="invalid-feedback d-block">{{ form.status.errors|first }}</div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            {{ form.mostrar_na_loja }}
+                            <label class="form-check-label" for="{{ form.mostrar_na_loja.id_for_label }}">Mostrar na Loja</label>
+                            {% if form.mostrar_na_loja.errors %}
+                                <div class="invalid-feedback d-block">{{ form.mostrar_na_loja.errors|first }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block">{{ form.mostrar_na_loja.help_text }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Imagem -->
                 <div class="col-md-12">
                     <div class="form-group mb-3">
-                        <label for="descricao">Descrição</label>
-                        <textarea
-                            class="form-control {% if form.descricao.errors %}is-invalid{% endif %}"
-                            id="descricao"
-                            name="descricao"
-                            rows="3"
-                        >{{ form.descricao.value|default:'' }}</textarea>
-                        {% if form.descricao.errors %}
-                            <div class="invalid-feedback">{{ form.descricao.errors|first }}</div>
+                        <label for="{{ form.imagem.id_for_label }}">Imagem/Logo</label>
+                        {% if form.instance.imagem %}
+                            <div class="mb-2">
+                                <img src="{{ form.instance.imagem.url }}" alt="Logo atual" style="max-height: 50px;">
+                                <small class="text-muted ms-2">Imagem atual</small>
+                            </div>
                         {% endif %}
+                        {{ form.imagem }}
+                        {% if form.imagem.errors %}
+                            <div class="invalid-feedback d-block">{{ form.imagem.errors|first }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.imagem.help_text }}</small>
                     </div>
                 </div>
 
-                <div class="col-12 mt-3">
+                <!-- Botões -->
+                <div class="col-12 mt-4">
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-save me-2"></i>Salvar Alterações
                     </button>
@@ -115,4 +235,33 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+// Mostrar/esconder campos de acordo com o tipo de pagamento selecionado
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('{{ form.tipo.id_for_label }}');
+    
+    function toggleBancoFields() {
+        const tipo = tipoSelect.value;
+        const bancarioFields = document.querySelectorAll('.bancario-field');
+        
+        if (tipo === 'transferencia_bancaria' || tipo === 'referencia') {
+            bancarioFields.forEach(field => {
+                field.style.display = 'block';
+            });
+        } else {
+            bancarioFields.forEach(field => {
+                field.style.display = 'none';
+            });
+        }
+    }
+    
+    tipoSelect.addEventListener('change', toggleBancoFields);
+    
+    // Executa na carga inicial
+    toggleBancoFields();
+});
+</script>
 {% endblock %}

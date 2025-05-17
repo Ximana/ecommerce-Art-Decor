@@ -8,7 +8,13 @@ urlpatterns = [
     # Autenticacao
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('home/', views.home_view, name='home'),
+    
+    path('cadastro/', views.UsuarioCreateView.as_view(), name='cadastro'),
+    path('usuarios/perfil//', views.UsuarioPerfilView.as_view(), name='perfil'),
+    #path('usuarios/remover/<int:pk>/', views_usuarios.UsuarioDeleteView.as_view(), name='usuario_remover'),
+    path('usuarios/atualizar/', views.UsuarioUpdateView.as_view(), name='atualizar_perfil'),    
+    path('usuario/foto/atualizar/', views.AtualizarFotoView.as_view(), name='atualizar_foto'),
+    path('usuario/senha/alterar/', views.AlterarSenhaView.as_view(), name='alterar_senha'),
     
     # Lista de Desejos
     #path('listaDesejos/', views.listaDesejos_view, name='listaDesejos'),

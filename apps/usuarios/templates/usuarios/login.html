@@ -1,68 +1,268 @@
+{% extends 'core/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar</title>
-    <link href="{%  static 'core/css/bootstrap.min.css' %}" rel="stylesheet" />
-    <link href="{% static 'core/css/all.min.css'  %}" rel="stylesheet" />
-    <link href="{% static 'core/css/login.css'  %}" rel="stylesheet" />
-    <style>
-        
 
-    </style>
-</head>
-<body>
-    <div class="main-container">
-        <div class="row g-0">
-            <div class="col-md-6 left-side">
-                <img src="{% static 'core/img/logo.png'%}" alt="logo" class="logo-image mt-5">
-                <div class="text-center text-success ">
-                    <h4 class="h5">Sistema de Detecção de Doenças Pulmonares</h4>
-                </div>
-                
+{% block title %}Login - Art & Decor{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .login-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .login-header h2 {
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .login-header p {
+        color: #777;
+    }
+    
+    .login-form .form-control {
+        height: 50px;
+        border-radius: 5px;
+        box-shadow: none;
+        margin-bottom: 20px;
+        padding-left: 15px;
+        border: 1px solid #ddd;
+    }
+    
+    .login-form .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .login-form .input-group-text {
+        background-color: transparent;
+        border-right: none;
+        color: #777;
+    }
+    
+    .login-form .form-control {
+        border-left: none;
+    }
+    
+    .login-form .btn-primary {
+        height: 50px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    
+    .login-form .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .login-separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+        color: #777;
+    }
+    
+    .login-separator::before,
+    .login-separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .login-separator::before {
+        margin-right: 10px;
+    }
+    
+    .login-separator::after {
+        margin-left: 10px;
+    }
+    
+    .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .social-login .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        color: white;
+        font-size: 18px;
+        transition: all 0.3s;
+    }
+    
+    .social-login .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-facebook {
+        background-color: #3b5998;
+    }
+    
+    .btn-google {
+        background-color: #db4437;
+    }
+    
+    .btn-apple {
+        background-color: #000;
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #777;
+    }
+    
+    .login-footer a {
+        color: #007bff;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .login-banner {
+        background-color: #f8f9fa;
+        padding: 50px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .login-banner h1 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .login-banner p {
+        color: #777;
+    }
+    
+    .form-check-input:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .remember-forgot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .alert-login {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    
+    .login-illustration {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .login-illustration img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    @media (max-width: 767px) {
+        .login-illustration {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<div class="container-fluid cabecalho-pagina">
+    <div class="container">
+        <h1 class="text-center">Login</h1>
+        <p class="text-center">Acesse sua conta para gerenciar seus pedidos e preferências</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="login-illustration">
+            <img src="{% static 'core/img/logo.png' %}" alt="Login Illustration" 
+                 onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="login-container">
+            <div class="login-header">
+                <h2>Bem-vindo de volta</h2>
+                <p>Entre com os seus dados para acessar sua conta</p>
             </div>
-            <div class="col-md-6 form-side">
-
-                <!-- Mensagens -->
+            
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-dismissible fade show {% if message.tags == 'success' %}alert-success
-                                                          {% else %} alert-danger{% endif %}" role="alert">
-                        <i class="fas fa-info-circle"></i>
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-login">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
-
-
-                <div class="mb-4 ">
-                    <div class="h4 text-success">Login</d>
+            
+            <form method="post" class="login-form">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="text" name="username" class="form-control" placeholder="Usuário" required>
+                    </div>
                 </div>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <input name="username" type="text" class="form-control" placeholder="Usuário" required>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="password" class="form-control" placeholder="Senha" required>
                     </div>
-                    <div class="mb-3">
-                        <input name="password" type="password" class="form-control" placeholder="Password" required>
+                </div>
+                <div class="remember-forgot">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me">
+                        <label class="form-check-label" for="rememberMe">Lembrar-me</label>
                     </div>
-                    <button type="submit" class="form-control btn btn-success">Entrar</button>
-                    
-                </form>
+                    <a href="{% comment %}{% url 'usuarios:recuperar_senha' %}{% endcomment %}" class="text-primary">Esqueceu a senha?</a>
+                </div>
+                <button type="submit" class="btn btn-primary">Entrar</button>
                 
-                <div class="text-success text-center mt-5 h4">
-                    <a href="#"><i class='text-success fa-brands fa-facebook-f' ></i></a>
-                    <a href="#"><i class='text-success fa-brands fa-twitter'></i></a>
-                    <a href="#"><i class='text-success fa-brands fa-instagram'></i></a>
-                    <a href="#"><i class='text-success fa-brands fa-youtube'></i></a>
+                <div class="login-separator">ou continue com</div>
+                
+                <div class="social-login">
+                    <a href="#" class="btn btn-facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="btn btn-google"><i class="fab fa-google"></i></a>
+                    <a href="#" class="btn btn-apple"><i class="fab fa-apple"></i></a>
                 </div>
-            </div>
+                
+                <div class="login-footer">
+                    <p>Não tem uma conta? <a href="{% url 'usuarios:cadastro' %}">Cadastre-se</a></p>
+                </div>
+            </form>
         </div>
     </div>
-
-    <script src="{% static 'core/js/bootstrap.bundle.min.js' %}"></script>
-</body>
-</html>
+</div>
+{% endblock %}

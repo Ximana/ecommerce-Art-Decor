@@ -7,8 +7,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView, View
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from .models import Usuario, Endereco, ListaDesejo
 from apps.produtos.models import Produto
+from apps.pedidos.models import Pedido
 from .forms import UsuarioRegistroForm, EnderecoForm #, UsuarioEdicaoForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
@@ -34,13 +36,143 @@ def logout_view(request):
     #messages.success(request, 'Logout realizado com sucesso!')
     return redirect('core:home')
 
+class UsuarioCreateView(CreateView):
+    model = Usuario
+    form_class = UsuarioRegistroForm
+    template_name = 'usuarios/cadastro.html'
+    success_url = reverse_lazy('usuarios:login')  # Redirecionar para página de login após cadastro
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adicionar contexto adicional se necessário
+        return context
+    
+    def form_valid(self, form):
+        # Definir o tipo de usuário como 'cliente' antes de salvar
+        form.instance.tipo_usuario = 'cliente'
+        
+        # Salvar o usuário
+        usuario = form.save()
+        
+        # Adicionar mensagem de sucesso
+        messages.success(
+            self.request, 
+            f'Conta criada com sucesso para {usuario.get_nome_completo()}! Agora você pode fazer login.'
+        )
+        
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        # Adicionar mensagem de erro
+        messages.error(
+            self.request, 
+            'Erro ao criar conta. Por favor, verifique os dados informados.'
+        )
+        
+        return super().form_invalid(form)
+    
+class UsuarioPerfilView(LoginRequiredMixin, DetailView):
+    model = Usuario
+    template_name = 'usuarios/perfil.html'
+    context_object_name = 'usuario'
+    
+    def get_object(self):
+        # Garantir que sempre retorne o usuário logado
+        return self.request.user
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adiciona o formulário no contexto
+        context['form'] = UsuarioRegistroForm(instance=self.object)
+        # Adicionar informações adicionais que podem ser úteis
+        context['total_pedidos'] = Pedido.objects.filter(usuario=self.object).count()
+        return context
+    
+class UsuarioDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Usuario
+    success_url = reverse_lazy('administracao:usuarios_lista')
+    success_message = "Usuario removido com sucesso!"
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+    
+class UsuarioUpdateView(LoginRequiredMixin, UpdateView):
+    model = Usuario
+    fields = ['first_name', 'last_name', 'email', 'telefone', 'bi', 'data_nascimento']
+    template_name = 'usuarios/perfil.html'
+    
+    # funcao para retornar a pagina anterior
+    def get_success_url(self):
+        return reverse_lazy('usuarios:perfil')
+    
+    def get_object(self, queryset=None):
+        return self.request.user
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Dados atualizado com sucesso!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erro ao atualizar usuario. Verifique os dados informados.')
+        return redirect('usuarios:perfil')
 
-def home_view(request):
-    return render(request, 'core/home.html')
 
-def listaDesejos_view(request):
-    return render(request, 'usuarios/lista_desejos.html')
-
+class AtualizarFotoView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            foto = request.FILES.get('foto_perfil')
+            if foto:
+                # Se já existe uma foto, deletar a antiga
+                if request.user.foto_perfil:
+                    request.user.foto_perfil.delete()
+                
+                request.user.foto_perfil = foto
+                request.user.save()
+                messages.success(request, 'Foto de perfil atualizada com sucesso!')
+            else:
+                messages.error(request, 'Nenhuma foto foi selecionada.')
+                
+        except Exception as e:
+            messages.error(request, f'Erro ao atualizar foto de perfil: {str(e)}')
+        
+        return redirect('usuarios:perfil')
+    
+class AlterarSenhaView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        senha_atual = request.POST.get('senha_atual')
+        nova_senha = request.POST.get('nova_senha')
+        confirmar_senha = request.POST.get('confirmar_senha')
+        
+        if not request.user.check_password(senha_atual):
+            messages.error(request, 'Senha atual incorreta.')
+            return redirect('usuarios:perfil')
+            
+        if nova_senha != confirmar_senha:
+            messages.error(request, 'As novas senhas não coincidem.')
+            return redirect('usuarios:perfil')
+            
+        if len(nova_senha) < 8:
+            messages.error(request, 'A nova senha deve ter pelo menos 8 caracteres.')
+            return redirect('usuarios:perfil')
+            
+        # Verificar se a senha contém letras e números
+        if not any(c.isalpha() for c in nova_senha) or not any(c.isdigit() for c in nova_senha):
+            messages.error(request, 'A senha deve conter letras e números.')
+            return redirect('usuarios:perfil')
+        
+        try:
+            request.user.set_password(nova_senha)
+            request.user.save()
+            # Atualiza a sessão para manter o usuário logado
+            update_session_auth_hash(request, request.user)
+            messages.success(request, 'Senha alterada com sucesso!')
+        except Exception as e:
+            messages.error(request, f'Erro ao alterar a senha: {str(e)}')
+            
+        return redirect('usuarios:perfil')
+  
+# Lista de Desejos
 class ListaDesejoView(LoginRequiredMixin, ListView):
     model = ListaDesejo
     template_name = 'usuarios/lista_desejos.html'
@@ -80,10 +212,12 @@ class AdicionarListaDesejoView(LoginRequiredMixin, View):
                 })
         
         # Resposta não-AJAX
+        """
         if created:
             messages.success(request, f"{produto.nome} adicionado à sua lista de desejos.")
         else:
             messages.info(request, f"{produto.nome} já está na sua lista de desejos.")
+        """
             
         return redirect('produtos:detalhe', pk=produto_id)
 
@@ -102,9 +236,10 @@ class RemoverListaDesejoView(LoginRequiredMixin, View):
             })
         
         # Resposta não-AJAX
-        messages.success(request, f"{nome_produto} removido da sua lista de desejos.")
+        #messages.success(request, f"{nome_produto} removido da sua lista de desejos.")
         return redirect('usuarios:lista_desejos')
     
+# Enderecos
 class EnderecoListView(LoginRequiredMixin, ListView):
     model = Endereco
     template_name = 'usuarios/enderecos/listar_enderecos.html'

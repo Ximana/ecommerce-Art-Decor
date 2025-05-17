@@ -5,51 +5,7 @@
 
 {% block arquivos_css %}
 <style>
-    /* Estilos para notificações */
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background-color: white;
-        border-radius: 4px;
-        padding: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 9999;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        max-width: 350px;
-    }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification-content {
-        display: flex;
-        align-items: center;
-    }
-    
-    .notification-content i {
-        margin-right: 10px;
-        font-size: 20px;
-    }
-    
-    .notification.success {
-        border-left: 4px solid #28a745;
-    }
-    
-    .notification.success i {
-        color: #28a745;
-    }
-    
-    .notification.error {
-        border-left: 4px solid #dc3545;
-    }
-    
-    .notification.error i {
-        color: #dc3545;
-    }
-    
+        
     /* Animação para o botão de adicionar ao carrinho */
     .cart-btn:active {
         transform: scale(0.95);
@@ -75,7 +31,7 @@
 
 {% block banner %}
     <!-- Banner -->
-    <div class="container-fluid shop-header">
+    <div class="container-fluid cabecalho-pagina">
         <div class="container">
             <h1 class="text-center">Loja</h1>
             <p class="text-center">Início - Loja</p>
@@ -143,7 +99,7 @@
                 <div class="filter-section mt-3">
                     <h5>Filtro de Preço</h5>
                     <input type="range" class="form-range" id="priceRange" name="preco_max" 
-                           min="0" max="5000" step="100" value="{{ preco_maximo }}">
+                           min="0" max="1000000" step="500" value="{{ preco_maximo }}">
                     <div class="d-flex justify-content-between">
                         <span id="minPriceLabel">kz 0</span>
                         <span id="maxPriceLabel">kz <span id="currentPrice">{{ preco_maximo }}</span></span>
@@ -194,11 +150,18 @@
                 {% for produto in produtos %}
                 <div class="col-md-4 mb-4">
                     <div class="product-card position-relative">
+                        <!-- Badge para mostrar quando não tem estoque -->
+                        {% if produto.estoque <= 0 %}
+                        <div class="position-absolute badge bg-danger" style="top: 10px; right: 10px; z-index: 10;">
+                            Sem estoque
+                        </div>
+                        {% endif %}
+                        
                         <div class="product-image-container">
                             {% if produto.imagens.first %}
                                 <img src="{{ produto.imagens.first.url_imagem.url }}" alt="{{ produto.nome }}" class="img-fluid">
                             {% else %}
-                                <img src="/media/produtos/product_6.png" alt="{{ produto.nome }}" class="img-fluid">
+                                <img src="/media/produtos/produto-sem-imagem.png" alt="{{ produto.nome }}" class="img-fluid">
                             {% endif %}
                         </div>
                         <div class="product-info">
@@ -210,10 +173,12 @@
                                 <a class="btn btn-primary details-btn" href="{% url 'produtos:detalhe' produto.pk %}">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <button class="btn btn-success cart-btn add-to-cart" data-produto-id="{{ produto.pk }}">
+                                <button class="btn btn-success cart-btn add-to-cart" 
+                                        data-produto-id="{{ produto.pk }}"
+                                        data-estoque="{{ produto.estoque }}">
                                     <i class="fas fa-shopping-cart"></i>
                                 </button>
-                                <button class="btn btn-danger avorite-btn add-to-favorites  {% comment %}favorite-btn add-to-favorites {% if user.is_authenticated and produto in user.listadesejos_set.all|map:'produto' %}active{% endif %}{% endcomment %}" data-produto-id="{{ produto.pk }}">
+                                <button class="btn btn-danger favorite-btn add-to-favorites  {% comment %}favorite-btn add-to-favorites {% if user.is_authenticated and produto in user.listadesejos_set.all|map:'produto' %}active{% endif %}{% endcomment %}" data-produto-id="{{ produto.pk }}">
                                     <i class="{% comment %}{% if user.is_authenticated and produto in user.listadesejos_set.all|map:'produto' %}fas{% else %}far{% endif %}{% endcomment %} far fa-heart"></i>
                                 </button>
                             </div>
@@ -312,7 +277,36 @@
     });
 
 
-    // Função para adicionar produtos ao carrinho
+    // Função para mostrar notificações - definida no escopo global para ser acessível em todas as partes
+function mostrarNotificacao(mensagem, tipo) {
+    // Criar elemento de notificação
+    const notificacao = document.createElement('div');
+    notificacao.className = `notification ${tipo}`;
+    notificacao.innerHTML = `
+        <div class="notification-content">
+            <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${mensagem}</span>
+        </div>
+    `;
+    
+    // Adicionar ao DOM
+    document.body.appendChild(notificacao);
+    
+    // Mostrar com animação
+    setTimeout(() => {
+        notificacao.classList.add('show');
+    }, 10);
+    
+    // Remover após alguns segundos
+    setTimeout(() => {
+        notificacao.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(notificacao);
+        }, 300);
+    }, 3000);
+}
+
+// Função para adicionar produtos ao carrinho
 document.addEventListener('DOMContentLoaded', function() {
     // Seleciona todos os botões de "adicionar ao carrinho"
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
@@ -322,6 +316,13 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const produtoId = this.getAttribute('data-produto-id');
+            const estoque = parseInt(this.getAttribute('data-estoque'));
+            
+            // Verifica se tem estoque disponível
+            if (estoque <= 0) {
+                mostrarNotificacao('Produto sem estoque disponível', 'error');
+                return;
+            }
             
             // Cria os dados para o POST
             const formData = new FormData();
@@ -349,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         cartCounter.textContent = data.quantidade_total;
                     }
                 } else {
-                    mostrarNotificacao('Erro ao adicionar produto ao carrinho', 'error');
+                    mostrarNotificacao(data.message || 'Erro ao adicionar produto ao carrinho', 'error');
                 }
             })
             .catch(error => {
@@ -358,35 +359,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    
-    // Função para mostrar notificações
-    function mostrarNotificacao(mensagem, tipo) {
-        // Criar elemento de notificação
-        const notificacao = document.createElement('div');
-        notificacao.className = `notification ${tipo}`;
-        notificacao.innerHTML = `
-            <div class="notification-content">
-                <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                <span>${mensagem}</span>
-            </div>
-        `;
-        
-        // Adicionar ao DOM
-        document.body.appendChild(notificacao);
-        
-        // Mostrar com animação
-        setTimeout(() => {
-            notificacao.classList.add('show');
-        }, 10);
-        
-        // Remover após alguns segundos
-        setTimeout(() => {
-            notificacao.classList.remove('show');
-            setTimeout(() => {
-                document.body.removeChild(notificacao);
-            }, 300);
-        }, 3000);
-    }
 });
 
 // Função para adicionar produtos à lista de desejos
@@ -400,8 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Verificar se o usuário está autenticado
             {% if not user.is_authenticated %}
-                window.location.href = "{% url 'usuarios:login' %}?next={{ request.path }}";
-                return;
+                mostrarNotificacao('Você precisa estar logado para adicionar produtos aos favoritos', 'error');
+                return; // Apenas mostra a notificação, sem redirecionar
             {% endif %}
             
             const produtoId = this.getAttribute('data-produto-id');
@@ -438,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Exibe notificação de sucesso
                     mostrarNotificacao(data.message, 'success');
                 } else {
-                    mostrarNotificacao('Erro ao processar sua solicitação', 'error');
+                    mostrarNotificacao(data.message || 'Erro ao processar sua solicitação', 'error');
                 }
             })
             .catch(error => {

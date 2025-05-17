@@ -1,54 +1,450 @@
-<!--apps/core/teamplates/core/home.html -->
-
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Art & Decor - Sua loja de decoração e móveis{% endblock %}
 
 {% block arquivos_css %}
+<link href="{% static 'core/css/home.css' %}" rel="stylesheet" />
+{% endblock %}
 
+{% block banner %}
+<!-- Banner Principal / Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Transforme sua casa com estilo</h1>
+            <p>Descubra peças exclusivas para decorar seus ambientes com elegância e conforto. Com os melhores preços e facilidades de entrega.</p>
+            <a href="{% url 'produtos:lista' %}" class="btn btn-primary hero-btn">Ver Produtos <i class="fas fa-arrow-right ms-2"></i></a>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block content %}
-
-    <h1>Ola mundo</h1>
-
-    
-
-    {% if user.is_authenticated %}
-    <div class="d-flex align-items-center">
-        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
-             style="width: 32px; height: 32px">
-          <i class="fas fa-user-md"></i>
+<!-- Categorias em Destaque -->
+<section class="featured-categories">
+    <div class="section-title">
+        <h2>Categorias em Destaque</h2>
+    </div>
+    <div class="row">
+        {% for categoria in categorias_destaque %}
+        <div class="col-md-4">
+            <div class="category-card">
+                {% if categoria.imagem %}
+                <img src="{{ categoria.imagem.url }}" alt="{{ categoria.nome }}" class="category-img">
+                {% else %}
+                <img src="/media/categorias/categoria-sem-imagem.png" alt="{{ categoria.nome }}" class="category-img">
+                {% endif %}
+                <div class="category-overlay">
+                    <h3>{{ categoria.nome }}</h3>
+                    <a href="{% url 'produtos:lista' %}?categoria={{ categoria.id }}">Explorar <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
         </div>
-        <span class="ms-2 d-none d-lg-inline">{{ user.get_nome_completo }}</span>
-      </div>
-      
-    <a class="nav-link" href="{% url 'usuarios:logout' %}">
-        <i class="fas fa-sign-in-alt"></i>Sair
-    </a>
+        {% empty %}
+        <!-- Categorias padrão caso não haja categorias no banco -->
+        <div class="col-md-4">
+            <div class="category-card">
+                <img src="/media/categorias/categoria-sem-imagem.png" alt="Sala de Estar" class="category-img" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                <div class="category-overlay">
+                    <h3>Sala de Estar</h3>
+                    <a href="{% url 'produtos:lista' %}?categoria=1">Explorar <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="category-card">
+                <img src="/media/produtos/categoria-sem-imagem.png" alt="Quarto" class="category-img" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                <div class="category-overlay">
+                    <h3>Quarto</h3>
+                    <a href="{% url 'produtos:lista' %}?categoria=2">Explorar <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="category-card">
+                <img src="/media/produtos/ccategoria-sem-imagem.png" alt="Cozinha" class="category-img" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                <div class="category-overlay">
+                    <h3>Cozinha</h3>
+                    <a href="{% url 'produtos:lista' %}?categoria=3">Explorar <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 
-    {% else %}
-    <a class="nav-link" href="{% url 'administracao:login' %}">
-        <i class="fas fa-sign-in-alt"></i>Login Admin
-    </a>
+<!-- Produtos em Destaque -->
+<section class="featured-products">
+    <div class="section-title">
+        <h2>Produtos em Destaque</h2>
+    </div>
+    <div class="row">
+        {% for produto in produtos_destaque %}
+        <div class="col-md-3">
+            <div class="product-card">
+                {% if produto.preco_custo and produto.preco_custo > produto.preco_venda %}
+                    {% comment %}
+                        <span class="discount-badge">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                    {% endcomment %}
+                {% endif %}
+                <div class="product-image-container">
+                    {% if produto.imagem_principal %}
+                    <img src="{{ produto.imagens.first.url_imagem.url }}" alt="{{ produto.nome }}" class="img-fluid">
+                    {% else %}
+                    <img src="/media/produtos/produto-sem-imagem.png" alt="{{ produto.nome }}" class="img-fluid" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    {% comment %}<div class="stars">
+                        <!--  implementar aqui um sistema de avaliação de produtos futuramente -->
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>{% endcomment %}
+                    <h5>{{ produto.nome }}</h5>
+                    <p>kz {{ produto.preco_venda|floatformat:2 }}</p>
+                </div>
+                <div class="product-hover-actions">
+                    <div class="hover-action-container">
+                        <a class="btn btn-primary details-btn" href="{% url 'produtos:detalhe' produto.id %}">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        {% comment %}<button class="btn btn-success cart-btn add-to-cart" data-produto-id="{{ produto.id }}" data-estoque="{{ produto.estoque }}">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                        <button class="btn btn-danger favorite-btn add-to-favorites" data-produto-id="{{ produto.id }}">
+                            <i class="far fa-heart"></i>
+                        </button>{% endcomment %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Produtos padrão caso não haja produtos em destaque no banco -->
+        <!-- Produto 1 -->
+        <div class="col-md-3">
+            <div class="product-card">
+                <span class="discount-badge">-15%</span>
+                <div class="product-image-container">
+                    <img src="/media/produtos/produto-sem-imagem.png" alt="Sofá Moderno" class="img-fluid" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                </div>
+                <div class="product-info">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <h5>Sofá Moderno Cinza</h5>
+                    <p>kz 75.000,00</p>
+                </div>
+                <div class="product-hover-actions">
+                    <div class="hover-action-container">
+                        <a class="btn btn-primary details-btn" href="#">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button class="btn btn-success cart-btn add-to-cart" data-produto-id="1" data-estoque="10">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                        <button class="btn btn-danger favorite-btn add-to-favorites" data-produto-id="1">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Outros produtos de exemplo... -->
+        {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="{% url 'produtos:lista' %}" class="btn btn-outline-primary">Ver Todos os Produtos</a>
+    </div>
+</section>
 
-    <a class="nav-link" href="{% url 'usuarios:login' %}">
-        <i class="fas fa-sign-in-alt"></i>Login Cliente
-    </a>
+<!-- Banners Promocionais -->
+<section class="promo-section">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="promo-banner primary">
+                <h3>Oferta Especial</h3>
+                <p>Até 30% de desconto em móveis para sala de estar. Aproveite esta oferta por tempo limitado!</p>
+                <a href="{% url 'produtos:lista' %}?categoria=1" class="btn btn-light promo-btn">Comprar Agora</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="promo-banner secondary">
+                <h3>Nova Coleção</h3>
+                <p>Descubra nossa nova coleção de decoração minimalista para transformar seus ambientes.</p>
+                <a href="{% url 'produtos:lista' %}" class="btn btn-light promo-btn">Ver Coleção</a>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <a class="nav-link" href="">
-        <i class="fas fa-sign-in-alt"></i>Criar Conta
-    </a>
-    {% endif %}
+<!-- Coleções Especiais -->
+<section class="special-collections">
+    <div class="section-title">
+        <h2>Coleções Especiais</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="collection-item">
+                <img src="/media/produtos/produto-sem-imagem.png" alt="Coleção Escandinava" class="collection-img" onerror="this.onerror=null; this.src='/media/produtos/produto-sem-imagem.png';">
+                <div class="collection-overlay">
+                    <h3>Estilo Escandinavo</h3>
+                    <p>Simplicidade, funcionalidade e beleza minimalista.</p>
+                    <a href="{% url 'produtos:lista' %}" class="btn btn-outline-light">Explorar Coleção</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="collection-item">
+                <img src="/media/produtos/produto-sem-imagem.png" alt="Coleção Industrial" class="collection-img" onerror="this.onerror=null; this.src='/media/produtos/produto-sem-imagem.png';">
+                <div class="collection-overlay">
+                    <h3>Estilo Industrial</h3>
+                    <p>Robustez, materiais brutos e design urbano.</p>
+                    <a href="{% url 'produtos:lista' %}" class="btn btn-outline-light">Explorar Coleção</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-   
+<!-- Seção de Vantagens -->
+<section class="benefits-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Por que escolher a Art & Decor?</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h4>Entrega Rápida</h4>
+                    <p>Entregamos em todo o país com agilidade e segurança.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4>Garantia de Qualidade</h4>
+                    <p>Todos os produtos passam por rigoroso controle de qualidade.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h4>Pagamento Seguro</h4>
+                    <p>Diversas opções de pagamento com total segurança.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h4>Suporte 24/7</h4>
+                    <p>Atendimento ao cliente disponível todos os dias.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog e Artigos -->
+<section class="blog-section">
+    <div class="section-title">
+        <h2>Dicas e Inspirações</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="blog-card">
+                <div class="blog-img-container">
+                    <img src="/media/produtos/produto-sem-imagem2.png" alt="Dicas de Decoração" onerror="this.onerror=null;  this.src='/media/produtos/produto-sem-imagem2.png';">
+                </div>
+                <div class="blog-content">
+                    <div class="blog-date">
+                        <i class="far fa-calendar-alt me-1"></i> 15 de Abril, 2025
+                    </div>
+                    <h5>5 Dicas para Decorar sua Sala com Estilo</h5>
+                    <p>Aprenda como transformar sua sala de estar em um ambiente aconchegante e cheio de personalidade.</p>
+                    <a href="#" class="read-more">Ler mais <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="blog-card">
+                <div class="blog-img-container">
+                    <img src="/media/produtos/produto-sem-imagem2.png" alt="Tendências de Decoração" onerror="this.onerror=null; this.src='/media/produtos/produto-sem-imagem2.png';">
+                </div>
+                <div class="blog-content">
+                    <div class="blog-date">
+                        <i class="far fa-calendar-alt me-1"></i> 10 de Abril, 2025
+                    </div>
+                    <h5>Tendências de Decoração para 2025</h5>
+                    <p>Conheça as principais tendências de decoração que estão em alta neste ano e como aplicá-las.</p>
+                    <a href="#" class="read-more">Ler mais <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="blog-card">
+                <div class="blog-img-container">
+                    <img src="/media/produtos/produto-sem-imagem2.png" alt="Decoração Sustentável" onerror="this.onerror=null; this.src='/media/produtos/produto-sem-imagem2.png';">
+                </div>
+                <div class="blog-content">
+                    <div class="blog-date">
+                        <i class="far fa-calendar-alt me-1"></i> 5 de Abril, 2025
+                    </div>
+                    <h5>Decoração Sustentável: Como Começar</h5>
+                    <p>Descubra como criar ambientes bonitos e ecologicamente responsáveis com opções sustentáveis.</p>
+                    <a href="#" class="read-more">Ler mais <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a href="#" class="btn btn-outline-primary">Ver Todos os Artigos</a>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <h3>Assine Nossa Newsletter</h3>
+            <p>Receba novidades, dicas de decoração e ofertas exclusivas diretamente no seu e-mail.</p>
+            <form class="newsletter-form" id="newsletter-form">
+                <input type="email" class="form-control" placeholder="Seu melhor e-mail" required>
+                <button type="submit" class="btn btn-primary">Assinar</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Marcas Parceiras -->
+<section class="partners-section mb-5">
+    <div class="container">
+        <div class="section-title">
+            <h2>Marcas Parceiras</h2>
+        </div>
+        <div class="row align-items-center justify-content-center">
+            {% for marca in marcas %}
+            <div class="col-6 col-md-2 text-center mb-4">
+                {% if marca.logo %}
+                <img src="{{ marca.logo.url }}" alt="{{ marca.nome }}" class="img-fluid" style="max-height: 60px;">
+                {% else %}
+                <img src="/media/marcas/marca-sem-imagem.png" alt="{{ marca.nome }}" class="img-fluid" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';" style="max-height: 60px;">
+                {% endif %}
+            </div>
+            {% empty %}
+            <!-- Marcas padrão caso não haja marcas no banco -->
+            <div class="col-6 col-md-2 text-center mb-4">
+                <img src="/media/marcas/marca-sem-imagem.png" alt="Marca Parceira 1" class="img-fluid" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';" style="max-height: 60px;">
+            </div>
+            <div class="col-6 col-md-2 text-center mb-4">
+                <img src="/media/marcas/marca-sem-imagem.png" alt="Marca Parceira 2" class="img-fluid" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';" style="max-height: 60px;">
+            </div>
+            <!-- Outras marcas de exemplo... -->
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Depoimentos dos Clientes -->
+<section class="testimonials-section mb-5">
+    <div class="container">
+        <div class="section-title">
+            <h2>O Que Nossos Clientes Dizem</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="stars mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="card-text">"Os móveis são de excelente qualidade e o atendimento foi impecável. Recomendo a todos que buscam produtos de qualidade para decorar a casa."</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex align-items-center">
+                            <img src="/media/clientes/cliente-1.jpg" alt="Cliente" class="rounded-circle me-3" width="50" height="50" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                            <div>
+                                <h6 class="mb-0">Ana Maria Silva</h6>
+                                <small class="text-muted">Luanda</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="stars mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="card-text">"Comprei um sofá e uma mesa de jantar, e estou encantada com a qualidade dos produtos. A entrega foi rápida e os montadores foram muito profissionais."</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex align-items-center">
+                            <img src="/media/clientes/cliente-2.jpg" alt="Cliente" class="rounded-circle me-3" width="50" height="50" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                            <div>
+                                <h6 class="mb-0">Carlos Eduardo</h6>
+                                <small class="text-muted">Benguela</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="stars mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="card-text">"Fantástica experiência de compra! Os produtos são de alta qualidade e o serviço ao cliente é excepcional. Certamente voltarei a comprar."</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex align-items-center">
+                            <img src="/media/clientes/cliente-3.jpg" alt="Cliente" class="rounded-circle me-3" width="50" height="50" onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+                            <div>
+                                <h6 class="mb-0">Márcia Oliveira</h6>
+                                <small class="text-muted">Huambo</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
-
 
 {% block scriptJS %}
 <script>
-
     
 </script>
 {% endblock %}
+   

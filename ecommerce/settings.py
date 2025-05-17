@@ -10,11 +10,9 @@ SECRET_KEY = 'django-insecure-y78vv#0z)8a8n)+%z@!!&%jj0r=^p@qd82lotorsw%2*%euj)v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -88,7 +86,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -106,7 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -148,3 +144,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Messages settings
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# Configuracao para permitir operacoes do Ngrok nas requisicoes
+# Essa parte serve apenas para usar o app com Ngrok
+CSRF_TRUSTED_ORIGINS = [
+    'https://7fa3-102-214-36-220.ngrok-free.app'
+]

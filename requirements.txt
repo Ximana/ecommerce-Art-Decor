@@ -1,0 +1,24 @@
+# Framework e ORM
+Django>=4.2,<5.0
+psycopg2-binary>=2.9  # Driver PostgreSQL
+
+# Imagens
+Pillow>=10.0
+
+# Variáveis de ambiente
+python-decouple>=3.8
+
+# Formulários e estilização
+django-crispy-forms>=2.0
+crispy-bootstrap5>=0.7
+django-widget-tweaks>=1.5.0
+
+# E-mail (opcional)
+django-anymail[mailgun]>=10.0
+
+# Debug e testes
+django-debug-toolbar>=4.0
+
+# Produção
+gunicorn>=21.0
+whitenoise>=6.6.0

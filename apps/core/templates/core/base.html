@@ -10,14 +10,12 @@
     <link href="{%  static 'core/css/bootstrap.min.css' %}" rel="stylesheet" />
     <link href="{% static 'core/css/all.min.css'  %}" rel="stylesheet" />
     <link href="{% static 'core/css/estilo.css' %}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{% static 'core/img/favicon.ico' %}">
     
     {% block arquivos_css %}{% endblock %}
   </head>
 
   <body>
-
-    
-
   <!-- Menu -->
   <nav class="navbar navbar-expand-lg navbar-light bg-white">
       <div class="container">
@@ -29,9 +27,8 @@
               <ul class="navbar-nav me-auto">
                   <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">Início</a></li>
                   <li class="nav-item"><a class="nav-link" href="{% url 'produtos:lista' %}">Loja</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#">Páginas</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#">Contato</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'core:sobre' %}">Sobre</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'core:contato' %}">Contato</a></li>
               </ul>
               <div class="nav-icons d-flex align-items-center">
                     <a href="{% url 'usuarios:lista_desejos' %}" class="me-3"><i class="fas fa-heart"></i></a>
@@ -42,18 +39,30 @@
                             </span>
                         </a>
                     </a>
-                  <div class="dropdown">
-                      <a href="#" class="dropdown-toggle user-dropdown" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ user.get_nome_completo }}
-                      </a>
-                      <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                          <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
-                          <li><a class="dropdown-item" href="{% url 'pedidos:meus_pedidos' %}"><i class="fas fa-shopping-bag me-2"></i>Meus Pedidos</a></li>
-                          <li><a class="dropdown-item" href="{% url 'usuarios:listar_enderecos' %}"><i class="fas fa-shopping-bag me-2"></i>Meus Endereços</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
-                      </ul>
-                  </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle user-dropdown" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.get_nome_completo }}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'pedidos:meus_pedidos' %}"><i class="fas fa-shopping-bag me-2"></i>Meus Pedidos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'usuarios:listar_enderecos' %}"><i class="fas fa-shopping-bag me-2"></i>Meus Endereços</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'usuarios:login' %}" class="btn btn-outline-secondary ms-3">
+                            login
+                        </a>
+                        <a href="{% url 'usuarios:cadastro' %}" class="btn btn-outline-secondary ms-3">
+                            Criar Conta
+                        </a>
+                    {% endif %}
+
+                  
               </div>
           </div>
       </div>
@@ -81,31 +90,30 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-                    <h5>Principais Produtos</h5>
+                    <h5>Principais Servilos</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#">Serviços de Marketing</a></li>
-                        <li><a href="#">Otimização de SEO</a></li>
+                        <li><a href="#">Serviços de Entrega ao Domicilio</a></li>
+                        <li><a href="#">Compras online rapidas</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>Links Rápidos</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#">Vagas</a></li>
-                        <li><a href="#">Recursos da Marca</a></li>
-                        <li><a href="#">Relações com Investidores</a></li>
+                        <li><a href="{% url 'produtos:lista' %}">Loja</a></li>
+                        <li><a href="{% url 'core:contato' %}">Contacto</a></li>
+                        <li><a href="{% url 'core:sobre' %}">Sobre</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>Recursos</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#">Termos de Serviço</a></li>
-                        <li><a href="#">Soluções de Marca</a></li>
-                        <li><a href="#">Agências</a></li>
+                        <li><a href="{% url 'core:termos' %}">Termos de Uso</a></li>
+                        <li><a href="{% url 'core:politicas' %}">Politicas de Privacidade</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>Newsletter</h5>
-                    <p>Céu frutífero não é menor em dias</p>
+                    <p>Insira o seu email para receber notificações</p>
                     <div class="input-group mb-3">
                         <input type="email" class="form-control" placeholder="Endereço de E-mail">
                         <button class="btn btn-pink" type="button">Assinar</button>

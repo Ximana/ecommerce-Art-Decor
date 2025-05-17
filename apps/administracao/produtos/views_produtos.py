@@ -13,7 +13,7 @@ from apps.usuarios.forms import UsuarioRegistroForm #, UsuarioEdicaoForm
 from django.contrib.auth.forms import PasswordChangeForm
 from apps.produtos.models import Produto, Marca, Categoria, ImagemProduto
 from .forms import ProdutoRegistroForm, MarcaRegistroForm, CategoriaRegistroForm, ProdutoImageForm, MovimentoEstoqueForm
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.http import JsonResponse
 import json
 
@@ -102,6 +102,14 @@ class ProdutoDetailView(LoginRequiredMixin, DetailView):
         
         # Carrega o histórico de movimentações de estoque
         context['movimentos_estoque'] = self.object.movimentos_estoque.all()[:10]
+        
+        # Carrega as visitas ao produto
+        context['visitas'] = self.object.visitas.all().order_by('-data_visita')[:20]
+        
+        # Carrega as avaliações do produto com média
+        avaliacoes = self.object.avaliacoes.filter(status=True).order_by('-data_avaliacao')
+        context['avaliacoes'] = avaliacoes
+        context['avaliacoes_media'] = avaliacoes.aggregate(Avg('nota'))['nota__avg'] or 0
         
         return context
 

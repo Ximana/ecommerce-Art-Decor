@@ -1,0 +1,96 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+local_settings.py
+
+# Environment variables
+.env
+.env.*
+
+# Media & static files
+/media/
+/staticfiles/
+/static_root/
+/media_root/
+
+# PostgreSQL dumps
+*.sql
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Translations
+*.mo
+
+# Django migrations (cache only)
+**/migrations/__pycache__/
+**/migrations/*.pyc
+
+# Ignore optional pyenv & virtualenv folders
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+env.bak/
+venv.bak/
+
+# MyPy & other static analysis
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Editors & IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Egg files
+*.egg-info/
+.eggs/
+*.egg
+
+# Backup files
+*~
+*.bak
+*.tmp

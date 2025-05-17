@@ -16,7 +16,6 @@ from django.db.models import Q
 from django.http import JsonResponse
 import json
 
-
 class UsuarioListView(ListView):
     model = Usuario
     template_name = 'administracao/usuarios/listarUsuarios.html'

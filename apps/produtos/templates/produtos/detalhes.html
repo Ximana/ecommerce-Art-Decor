@@ -6,6 +6,28 @@
 
 {% block arquivos_css %}
 <style>
+    
+    /* Animação para o botão de adicionar ao carrinho */
+    .cart-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Estilo para botão de favorito ativo */
+.favorite-btn.active {
+    background-color: #dc3545;
+    color: white;
+}
+
+.favorite-btn:not(.active) {
+    background-color: white;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.favorite-btn:not(.active):hover {
+    background-color: #f8d7da;
+}
+
     /* Melhorias nos estilos de texto para descrição, especificações e avaliações */
     .tab-pane {
         color: #555;
@@ -38,11 +60,33 @@
     .nav-tabs .nav-link:hover {
         color: #007bff;
     }
+
+    /* Avaliacoes */
+    .rating {
+        font-size: 1.2rem;
+        color: #ffc107;
+    }
+    .rating-select .btn-outline-warning {
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+    .rating-select .btn-outline-warning:hover, 
+    .rating-select .btn-check:checked + .btn-outline-warning {
+        color: #fff;
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+    .review-item .rating {
+        margin-bottom: 5px;
+    }
+    .review-item:last-child {
+        border-bottom: none !important;
+    }
 </style>
 {% endblock %}
 
 {% block banner %}
-<div class="container-fluid shop-header">
+<div class="container-fluid cabecalho-pagina">
     <div class="container">
         <h1 class="text-center">Detalhes do Produto</h1>
         <p class="text-center">
@@ -79,7 +123,7 @@
                     {% endif %}
                 {% else %}
                     <!-- Imagem padrão se não houver imagens -->
-                    <img src="/media/produtos/product_6.png" 
+                    <img src="/media/produtos/produto-sem-imagem.png" 
                          alt="{{ produto.nome }}" 
                          class="img-fluid main-product-image" 
                          id="mainProductImage">
@@ -97,7 +141,7 @@
                     </span>
                     
                     {% if produto.estoque > 0 %}
-                        <span class="badge bg-success">Em Estoque ({{ produto.estoque }})</span>
+                        <span class="badge bg-success">Em Estoque {% comment %}({{ produto.estoque }}){% endcomment %}</span>
                     {% else %}
                         <span class="badge bg-danger">Fora de Estoque</span>
                     {% endif %}
@@ -117,13 +161,15 @@
                 </div>
                 {% endif %}
                 
+                {% comment %}
                 <p class="product-description">
                     {{ produto.descricao|default:"Sem descrição disponível." }}
                 </p>
+                {% endcomment %}
                 
                 <div class="product-actions mt-4">
                     <div class="d-flex align-items-center">
-                        <form id="addToCartForm" method="post" action="{% url 'carrinhos:adicionar' %}" class="add-to-cart-form">
+                        <form id="addToCartForm" method="post" class="add-to-cart-form">
                             {% csrf_token %}
                             <input type="hidden" name="produto_id" value="{{ produto.id }}">
                             
@@ -149,30 +195,30 @@
                             
                             <div class="d-flex align-items-center">
                                 <div class="input-group me-3" style="max-width: 120px;">
-                                    <button class="btn btn-outline-secondary" type="button" id="decreaseQuantity">-</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="decreaseQuantity">-</button>
                                     <input type="text" class="form-control text-center" name="quantidade" value="1" readonly id="quantityInput">
-                                    <button class="btn btn-outline-secondary" type="button" id="increaseQuantity">+</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="increaseQuantity">+</button>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-primary" id="addToCartBtn" {% if produto.estoque <= 0 %}disabled{% endif %}>
-                                    <i class="fas fa-shopping-cart me-2"></i> Adicionar ao Carrinho
+                                <button 
+                                    class="btn btn-primary"
+                                    id="addToCartBtn" 
+                                    {% if produto.estoque <= 0 %}disabled{% endif %}>
+                                    <i class="fas fa-shopping-cart me-2"></i> 
+                                    {% if produto.estoque <= 0 %}Sem estoque{% else %}Adicionar ao Carrinho{% endif %}
                                 </button>
+
                                 
-                                {% if user.is_authenticated %}
-                                    <button type="button" class="btn btn-outline-secondary ms-3" id="addToFavoritesBtn" data-produto-id="{{ produto.id }}">
-                                        <i class="{% comment %}{% if produto in user.lista_desejos.all|map:'produto' %}fas{% else %}far{% endif %}{% endcomment %} fas fa-heart"></i>
-                                    </button>
-                                {% else %}
-                                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-secondary ms-3">
-                                        <i class="far fa-heart"></i>
-                                    </a>
-                                {% endif %}
+                                <button type="button" class="btn btn-outline-secondary ms-3 add-to-favorites" id="addToFavoritesBtn" data-produto-id="{{ produto.id }}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
                 
-                {% if produto.codigo_barras or produto.peso or produto.dimensoes %}
+                
+                {% comment %}{% if produto.codigo_barras or produto.peso or produto.dimensoes %}
                 <div class="product-extra-info mt-4">
                     <ul class="list-unstyled">
                         {% if produto.codigo_barras %}
@@ -188,7 +234,9 @@
                         {% endif %}
                     </ul>
                 </div>
-                {% endif %}
+                {% endif %}{% endcomment %}
+
+
             </div>
         </div>
     </div>
@@ -203,6 +251,9 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="related-tab" data-bs-toggle="tab" data-bs-target="#related" type="button" role="tab">Produtos Relacionados</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">Avaliações</button>
             </li>
         </ul>
         <div class="tab-content mt-3" id="productTabsContent">
@@ -295,6 +346,94 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- tab Avaliacoes -->
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Exibição das avaliações existentes -->
+                        <h4 class="mb-4">{{ avaliacoes.count }} Avaliações</h4>
+                        
+                        {% if avaliacoes %}
+                            {% for avaliacao in avaliacoes %}
+                            <div class="review-item mb-4 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5>{{ avaliacao.usuario.username }}</h5>
+                                        <div class="rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avaliacao.nota %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-warning"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ avaliacao.data_avaliacao|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    {% if user == avaliacao.usuario %}
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-danger delete-review-btn" 
+                                                data-avaliacao-id="{{ avaliacao.id }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="mt-2">{{ avaliacao.comentario|default:"" }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>Este produto ainda não tem avaliações. Seja o primeiro a avaliar!</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <!-- Formulário para adicionar avaliação -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Avalie este produto</h5>
+                                
+                                {% if user.is_authenticated %}
+                                    <form id="reviewForm" method="post" action="{% url 'produtos:avaliar_produto' produto.id %}">
+                                        {% csrf_token %}
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="nota">Sua nota:</label>
+                                            <div class="rating-select">
+                                                <div class="btn-group" role="group" aria-label="Rating">
+                                                    {% for i in "12345" %}
+                                                        <input type="radio" class="btn-check" name="nota" id="rating{{ i }}" 
+                                                            autocomplete="off" value="{{ i }}"
+                                                            {% if avaliacao_usuario and avaliacao_usuario.nota == forloop.counter %}checked{% endif %}>
+                                                        <label class="btn btn-outline-warning" for="rating{{ i }}">
+                                                            {{ i }}
+                                                        </label>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mb-3">
+                                            <label for="comentario">Seu comentário (opcional):</label>
+                                            <textarea class="form-control" id="comentario" name="comentario" rows="3">{% if avaliacao_usuario %}{{ avaliacao_usuario.comentario }}{% endif %}</textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary" id="submitReviewBtn">
+                                            {% if avaliacao_usuario %}Atualizar Avaliação{% else %}Enviar Avaliação{% endif %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <p>Você precisa estar <a href="{% url 'usuarios:login' %}?next={{ request.path }}">logado</a> para avaliar este produto.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -310,29 +449,29 @@
         
         // Estoque máximo disponível
         const estoqueMaximo = {{ produto.estoque }};
-
+    
         decreaseBtn.addEventListener('click', function() {
             let currentValue = parseInt(quantityInput.value);
             if (currentValue > 1) {
                 quantityInput.value = currentValue - 1;
             }
         });
-
+    
         increaseBtn.addEventListener('click', function() {
             let currentValue = parseInt(quantityInput.value);
             // Limitar ao estoque disponível
             if (currentValue < estoqueMaximo) {
                 quantityInput.value = currentValue + 1;
             } else {
-                // Opcional: mostrar mensagem de alerta
-                alert('Quantidade máxima disponível em estoque: ' + estoqueMaximo);
+                // Mostrar notificação em vez de alerta
+                mostrarNotificacao('Quantidade máxima disponível em estoque: ' + estoqueMaximo, 'error');
             }
         });
-
+    
         // Troca de imagem do produto
         const mainProductImage = document.getElementById('mainProductImage');
         const thumbnails = document.querySelectorAll('.product-thumbnail');
-
+    
         thumbnails.forEach(thumbnail => {
             thumbnail.addEventListener('click', function() {
                 // Remove active class from all thumbnails
@@ -347,13 +486,20 @@
             });
         });
         
-        // Adicionar ao carrinho (pode ser implementado posteriormente com AJAX)
+        // Adicionar ao carrinho com AJAX
         const addToCartForm = document.getElementById('addToCartForm');
         if (addToCartForm) {
             addToCartForm.addEventListener('submit', function(event) {
+                // Impedir o envio tradicional do formulário
                 event.preventDefault();
                 
                 const formData = new FormData(this);
+                const addToCartBtn = document.getElementById('addToCartBtn');
+                const originalText = addToCartBtn.innerHTML;
+                
+                // Desativar o botão durante o processamento
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processando...';
                 
                 // Enviar via AJAX
                 fetch('{% url "carrinhos:adicionar" %}', {
@@ -364,12 +510,14 @@
                     },
                     credentials: 'same-origin'
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na resposta do servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    // Feedback visual
-                    const addToCartBtn = document.getElementById('addToCartBtn');
-                    const originalText = addToCartBtn.innerHTML;
-                    
+                    // Feedback visual            
                     if (data.status === 'success') {
                         // Atualizar contador do carrinho se existir
                         const cartCounter = document.getElementById('cartCounter');
@@ -382,91 +530,220 @@
                         addToCartBtn.innerHTML = '<i class="fas fa-check me-2"></i> Adicionado!';
                         addToCartBtn.classList.replace('btn-primary', 'btn-success');
                         
-                        // Mensagem de sucesso
-                        showAlert('success', data.message);
+                        // Mensagem de sucesso usando APENAS a função personalizada
+                        mostrarNotificacao(data.message || 'Produto adicionado ao carrinho com sucesso!', 'success');
+                        
+                        // Resetar o campo de quantidade para 1
+                        document.getElementById('quantityInput').value = '1';
                     } else {
                         // Mensagem de erro
-                        showAlert('danger', data.message || 'Erro ao adicionar ao carrinho');
+                        mostrarNotificacao(data.message || 'Erro ao adicionar ao carrinho', 'error');
                     }
                     
-                    // Restaurar botão após 2 segundos
-                    setTimeout(() => {
+                    // Restaurar botão após 2 segundos em caso de sucesso
+                    if (data.status === 'success') {
+                        setTimeout(() => {
+                            addToCartBtn.innerHTML = originalText;
+                            addToCartBtn.classList.replace('btn-success', 'btn-primary');
+                            addToCartBtn.disabled = false;
+                        }, 2000);
+                    } else {
+                        // Restaurar botão imediatamente em caso de erro
                         addToCartBtn.innerHTML = originalText;
-                        addToCartBtn.classList.replace('btn-success', 'btn-primary');
-                    }, 2000);
+                        addToCartBtn.disabled = false;
+                    }
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    showAlert('danger', 'Erro ao processar sua solicitação');
+                    mostrarNotificacao('Erro ao processar sua solicitação. Tente novamente.', 'error');
+                    
+                    // Restaurar botão em caso de erro
+                    addToCartBtn.innerHTML = originalText;
+                    addToCartBtn.disabled = false;
+                });
+            });
+        }
+        
+        // Adicionar aos favoritos
+        const addToFavoritesBtn = document.getElementById('addToFavoritesBtn');
+        if (addToFavoritesBtn) {
+            addToFavoritesBtn.addEventListener('click', function() {
+                // Verificar se o usuário está autenticado
+                {% if not user.is_authenticated %}
+                    mostrarNotificacao('Você precisa estar logado para adicionar produtos aos favoritos', 'error');
+                    return;
+                {% endif %}
+                
+                const produtoId = this.getAttribute('data-produto-id');
+                const heartIcon = this.querySelector('i');
+                
+                // Cria os dados para o POST
+                const formData = new FormData();
+                formData.append('produto_id', produtoId);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                
+                // Envia a requisição AJAX
+                fetch('{% url "usuarios:adicionar_desejo" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Alterna a classe do botão para indicar o estado
+                        if (data.added) {
+                            heartIcon.classList.add('fas');
+                            heartIcon.classList.remove('far');
+                        } else {
+                            heartIcon.classList.add('far');
+                            heartIcon.classList.remove('fas');
+                        }
+                        
+                        // Exibe notificação de sucesso
+                        mostrarNotificacao(data.message, 'success');
+                    } else {
+                        mostrarNotificacao(data.message || 'Erro ao processar sua solicitação', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarNotificacao('Erro ao processar sua solicitação', 'error');
                 });
             });
         }
 
-        // Função para mostrar alertas
-        function showAlert(type, message) {
-            // Criar elemento de alerta
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
-            alertDiv.setAttribute('role', 'alert');
-            alertDiv.style.zIndex = '9999';
-            
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            
-            // Adicionar ao documento
-            document.body.appendChild(alertDiv);
-            
-            // Remover após 5 segundos
-            setTimeout(() => {
-                alertDiv.classList.remove('show');
-                setTimeout(() => alertDiv.remove(), 150);
-            }, 5000);
+        // Avaliações
+        const reviewForm = document.getElementById('reviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitBtn = document.getElementById('submitReviewBtn');
+                const originalText = submitBtn.innerHTML;
+                
+                // Verificar se uma nota foi selecionada
+                if (!formData.get('nota')) {
+                    mostrarNotificacao('Por favor, selecione uma nota para o produto.', 'error');
+                    return;
+                }
+                
+                // Desativar o botão durante o processamento
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processando...';
+                
+                // Enviar via AJAX
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        mostrarNotificacao(data.message, 'success');
+                        // Recarregar a página para mostrar a avaliação atualizada
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        mostrarNotificacao(data.message || 'Erro ao enviar avaliação', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarNotificacao('Erro ao processar sua solicitação. Tente novamente.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
         }
 
-        
-        // Adicionar aos favoritos com AJAX
-const addToFavoritesBtn = document.getElementById('addToFavoritesBtn');
-if (addToFavoritesBtn) {
-    addToFavoritesBtn.addEventListener('click', function() {
-        const produtoId = this.getAttribute('data-produto-id');
-        const heartIcon = this.querySelector('i');
-        const formData = new FormData();
-        formData.append('produto_id', produtoId);
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-        
-        fetch('{% url "usuarios:adicionar_desejo" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Toggle coração vazio/cheio
-            if (data.added) {
-                heartIcon.classList.replace('far', 'fas');
-                this.classList.add('text-danger');
-            } else {
-                heartIcon.classList.replace('fas', 'far');
-                this.classList.remove('text-danger');
-            }
-            
-            // Mostrar mensagem
-            showAlert('success', data.message);
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            showAlert('danger', 'Erro ao processar sua solicitação');
+        // Remover avaliação
+        const deleteReviewBtns = document.querySelectorAll('.delete-review-btn');
+        deleteReviewBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('Tem certeza que deseja remover sua avaliação?')) {
+                    const avaliacaoId = this.getAttribute('data-avaliacao-id');
+                    
+                    fetch(`/produtos/remover-avaliacao/${avaliacaoId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            mostrarNotificacao(data.message, 'success');
+                            // Recarregar a página para atualizar as avaliações
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            mostrarNotificacao(data.message || 'Erro ao remover avaliação', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        mostrarNotificacao('Erro ao processar sua solicitação. Tente novamente.', 'error');
+                    });
+                }
+            });
         });
     });
-}
-
-
-
-    });
+    
+    // Função para mostrar notificações (mantida separada para reutilização)
+    function mostrarNotificacao(mensagem, tipo) {
+        // Remover notificações existentes para evitar empilhamento
+        const notificacoesExistentes = document.querySelectorAll('.notification');
+        notificacoesExistentes.forEach(notif => {
+            notif.classList.remove('show');
+            setTimeout(() => {
+                if (notif.parentNode) {
+                    notif.parentNode.removeChild(notif);
+                }
+            }, 300);
+        });
+        
+        // Criar elemento de notificação
+        const notificacao = document.createElement('div');
+        notificacao.className = `notification ${tipo}`;
+        notificacao.innerHTML = `
+            <div class="notification-content">
+                <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${mensagem}</span>
+            </div>
+        `;
+        
+        // Adicionar ao DOM
+        document.body.appendChild(notificacao);
+        
+        // Mostrar com animação
+        setTimeout(() => {
+            notificacao.classList.add('show');
+        }, 10);
+        
+        // Remover após alguns segundos
+        setTimeout(() => {
+            notificacao.classList.remove('show');
+            setTimeout(() => {
+                if (notificacao.parentNode) {
+                    document.body.removeChild(notificacao);
+                }
+            }, 300);
+        }, 5000); // Aumentei para 5 segundos para dar mais tempo de leitura
+    }  
 </script>
 {% endblock %}

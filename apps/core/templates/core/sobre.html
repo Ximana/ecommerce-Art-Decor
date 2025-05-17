@@ -1,179 +1,353 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}PulmoVision - Sobre o Sistema{% endblock %}
+{% block title %}Sobre Nós - Art & Decor{% endblock %}
+
+{% block arquivos_css %}
+<link href="{% static 'core/css/sobre.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block banner %}
+<div class="container-fluid cabecalho-pagina">
+    <div class="container">
+        <h1 class="text-center">Sobre a Art & Decor</h1>
+        <p class="text-center">Conheça nossa história e nossa paixão por decoração e design</p>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Cabecalho -->
+<!-- História da Empresa -->
+<div class="sobre-section">
+    <div class="row">
+        <div class="col-lg-6">
+            <h2>Nossa História</h2>
+            <p>Fundada em 2015, a <strong>Art & Decor</strong> nasceu da paixão de um grupo de amigos por design de interiores e decoração de qualidade. O que começou como uma pequena loja física em Luanda, rapidamente se transformou em uma referência nacional em artigos de decoração, móveis e acessórios para o lar.</p>
+            <p>Nossa jornada tem sido marcada pela busca constante por inovação, qualidade e um atendimento que cria conexões genuínas com nossos clientes. Acreditamos que cada espaço conta uma história, e queremos ajudar você a contar a sua através de peças únicas e cuidadosamente selecionadas.</p>
+            <p>Hoje, expandimos nossa presença para todo o território angolano através do e-commerce, levando beleza e sofisticação para lares em todo o país.</p>
+        </div>
+        <div class="col-lg-6">
+            <img src="{% static 'core/img/sobre.jpg'%}" alt="História da Art & Decor" class="img-fluid rounded w-50">
+        </div>
+    </div>
+</div>
+
+<!-- Linha do Tempo -->
+<div class="sobre-section">
+    <h2>Nossa Trajetória</h2>
+    <ul class="timeline">
+        <li>
+            <div class="timeline-badge">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <span class="timeline-year">2015</span>
+                    <h4 class="timeline-title">Fundação</h4>
+                </div>
+                <div class="timeline-body">
+                    <p>Inauguração da primeira loja física no coração de Luanda.</p>
+                </div>
+            </div>
+        </li>
+        <li class="timeline-inverted">
+            <div class="timeline-badge">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <span class="timeline-year">2017</span>
+                    <h4 class="timeline-title">Prêmio de Excelência</h4>
+                </div>
+                <div class="timeline-body">
+                    <p>Reconhecimento como "Melhor Loja de Decoração" da cidade.</p>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="timeline-badge">
+                <i class="fas fa-expand-alt"></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <span class="timeline-year">2019</span>
+                    <h4 class="timeline-title">Expansão</h4>
+                </div>
+                <div class="timeline-body">
+                    <p>Abertura da segunda loja física e início de parcerias internacionais.</p>
+                </div>
+            </div>
+        </li>
+        <li class="timeline-inverted">
+            <div class="timeline-badge">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <span class="timeline-year">2021</span>
+                    <h4 class="timeline-title">Lançamento do E-commerce</h4>
+                </div>
+                <div class="timeline-body">
+                    <p>Nossa loja virtual é inaugurada, alcançando clientes em todo o país.</p>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="timeline-badge">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <span class="timeline-year">2023</span>
+                    <h4 class="timeline-title">Programa de Sustentabilidade</h4>
+                </div>
+                <div class="timeline-body">
+                    <p>Lançamento da nossa linha de produtos eco-friendly e início do programa de responsabilidade social.</p>
+                </div>
+            </div>
+        </li>
+        <li class="timeline-inverted">
+            <div class="timeline-badge">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <span class="timeline-year">2025</span>
+                    <h4 class="timeline-title">10 Anos de Excelência</h4>
+                </div>
+                <div class="timeline-body">
+                    <p>Celebramos uma década transformando casas em lares e expandindo nosso catálogo de produtos premium.</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<!-- Missão, Visão e Valores -->
+<div class="sobre-section">
+    <h2>Missão, Visão e Valores</h2>
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="mission-card">
+                <div class="icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3>Missão</h3>
+                <p>Transformar espaços em ambientes que inspirem e acolham, através de produtos de decoração que aliam beleza, qualidade e funcionalidade.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="mission-card">
+                <div class="icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3>Visão</h3>
+                <p>Ser reconhecida como a principal referência em decoração e design de interiores em Angola, criando tendências e elevando o padrão estético dos lares angolanos.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="mission-card">
+                <div class="icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Valores</h3>
+                <p>Excelência, criatividade, sustentabilidade, atendimento personalizado e compromisso com a satisfação do cliente são os pilares que guiam nossas ações.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas da Empresa -->
+<div class="stats-counter">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-6">
+                <div class="counter-item">
+                    <i class="fas fa-users"></i>
+                    <div class="count">10000+</div>
+                    <p>Clientes Satisfeitos</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="counter-item">
+                    <i class="fas fa-shopping-bag"></i>
+                    <div class="count">5000+</div>
+                    <p>Produtos</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="counter-item">
+                    <i class="fas fa-truck"></i>
+                    <div class="count">25000+</div>
+                    <p>Entregas Realizadas</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="counter-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div class="count">18</div>
+                    <p>Províncias Atendidas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nossa Equipe -->
+<div class="sobre-section">
+    <h2>Nossa Equipe</h2>
+    <p class="mb-5">Conheça os talentos por trás da Art & Decor, profissionais apaixonados por transformar casas em lares.</p>
     
-
-    <!-- Main Content -->
-    <div class="row g-4">
-        <!-- About Section -->
-        <div class="col-md-8">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle me-2 text-success"></i>Sobre o Projeto
-                    </h5>
+    <div class="row">
+        <div class="col-lg-3 col-md-6">
+            <div class="team-member">
+                <div class="team-image">
+                    <img src="{% static 'core/img/avatar.png'%}" alt="CEO">
+                    <div class="team-overlay">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p class="lead text-success mb-4">Um sistema revolucionário para diagnóstico assistido de doenças pulmonares</p>
-                    
-                    <p class="mb-4">O <strong>PulmoVision</strong> é um sistema avançado baseado em redes neurais convolucionais (CNN) desenvolvido para auxiliar profissionais de saúde na detecção automática de doenças pulmonares através da análise de imagens de raio-X do tórax.</p>
-                    
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 text-center" style="background-color: #f8f9fa;">
-                                <i class="fas fa-brain fa-3x text-success mb-3"></i>
-                                <h5>Deep Learning</h5>
-                                <p class="mb-0 text-muted">Utiliza técnicas avançadas de IA para análise precisa de imagens</p>
-                            </div>
+                <h4>Ana Silva</h4>
+                <span>CEO & Fundadora</span>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="team-member">
+                <div class="team-image">
+                    <img src="{% static 'core/img/avatar.png'%}" alt="Diretor Criativo">
+                    <div class="team-overlay">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
                         </div>
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 text-center" style="background-color: #f8f9fa;">
-                                <i class="fas fa-lungs fa-3x text-success mb-3"></i>
-                                <h5>Multiplas Doenças</h5>
-                                <p class="mb-0 text-muted">Detecta tuberculose, pneumonia e COVID-19</p>
-                            </div>
+                    </div>
+                </div>
+                <h4>Miguel Santos</h4>
+                <span>Diretor Criativo</span>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="team-member">
+                <div class="team-image">
+                    <img src="{% static 'core/img/avatar.png'%}" alt="Gerente de Marketing">
+                    <div class="team-overlay">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
                         </div>
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 text-center" style="background-color: #f8f9fa;">
-                                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
-                                <h5>Alta Precisão</h5>
-                                <p class="mb-0 text-muted">Resultados confiáveis e diagnóstico assistido</p>
-                            </div>
+                    </div>
+                </div>
+                <h4>Carolina Teixeira</h4>
+                <span>Gerente de Marketing</span>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="team-member">
+                <div class="team-image">
+                    <img src="{% static 'core/img/avatar.png'%}" alt="Especialista em Design">
+                    <div class="team-overlay">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
                         </div>
+                    </div>
+                </div>
+                <h4>Pedro Costa</h4>
+                <span>Especialista em Design</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Depoimentos -->
+<div class="sobre-section">
+    <h2>O Que Nossos Clientes Dizem</h2>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="testimonial-item">
+                <div class="testimonial-content">
+                    <p>A Art & Decor transformou completamente minha sala de estar. Os produtos são de excelente qualidade e o atendimento foi impecável, desde a escolha até a entrega.</p>
+                </div>
+                <div class="testimonial-author">
+                    <img src="{% static 'core/img/avatar.png'%}" alt="Cliente 1">
+                    <div class="author-info">
+                        <h5>Joana Mendes</h5>
+                        <span>Luanda</span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Seccao funcionalidades -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-star me-2 text-success"></i>Funcionalidades
-                    </h5>
+        <div class="col-md-6">
+            <div class="testimonial-item">
+                <div class="testimonial-content">
+                    <p>Encontrei na Art & Decor peças únicas que não vi em nenhuma outra loja. O site é muito fácil de navegar e a entrega foi super rápida. Recomendo a todos!</p>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="bg-success bg-opacity-10 rounded p-2 me-3">
-                            <i class="fas fa-upload text-success"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">Upload de Imagens</h6>
-                            <p class="text-muted small mb-0">Carregue facilmente imagens de raio-X para análise</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="bg-success bg-opacity-10 rounded p-2 me-3">
-                            <i class="fas fa-robot text-success"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">Detecção Automática</h6>
-                            <p class="text-muted small mb-0">Análise rápida e precisa com CNN</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="bg-success bg-opacity-10 rounded p-2 me-3">
-                            <i class="fas fa-users text-success"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">Gestão de Usuários</h6>
-                            <p class="text-muted small mb-0">Controle de acesso e autenticação segura</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-start">
-                        <div class="bg-success bg-opacity-10 rounded p-2 me-3">
-                            <i class="fas fa-history text-success"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">Histórico Completo</h6>
-                            <p class="text-muted small mb-0">Acompanhamento detalhado dos exames</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Secao Tecnologias -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-code me-2 text-success"></i>Tecnologias
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="bg-primary bg-opacity-10 rounded p-2 me-3">
-                            <i class="fab fa-python text-primary"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">Python & Django</h6>
-                            <p class="text-muted small mb-0">Framework web robusto e escalável</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="bg-warning bg-opacity-10 rounded p-2 me-3">
-                            <i class="fas fa-network-wired text-warning"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">TensorFlow/Keras</h6>
-                            <p class="text-muted small mb-0">Bibliotecas de Deep Learning</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-start">
-                        <div class="bg-info bg-opacity-10 rounded p-2 me-3">
-                            <i class="fas fa-database text-info"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1">MySQL & Bootstrap</h6>
-                            <p class="text-muted small mb-0">Banco de dados e interface responsiva</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Secao Desemvolvedor -->
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-circle me-2 text-success"></i>Desenvolvedor
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-2 text-center">
-                            <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
-                                <i class="fas fa-user-circle fa-5x text-success"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-10">
-                            <h4 class="mb-2">Paulo Ximana</h4>
-                            <p class="text-muted mb-3">Desenvolvedor Full Stack & Especialista em Machine Learning</p>
-                            
-                            <p class="mb-4">Apaixonado por tecnologia e inovação na área da saúde, com experiência em desenvolvimento de soluções baseadas em Inteligência Artificial. Focado em criar ferramentas que possam auxiliar profissionais de saúde e melhorar a vida dos pacientes.</p>
-                            
-                            <div class="d-flex gap-2">
-                                <a href="mailto:pauloximana@gmail.com" class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-envelope me-2"></i>Email
-                                </a>
-                                <a href="https://github.com/Ximana" target="_blank" class="btn btn-sm btn-outline-success">
-                                    <i class="fab fa-github me-2"></i>GitHub
-                                </a>
-                                <a href="#" class="btn btn-sm btn-outline-success">
-                                    <i class="fab fa-linkedin me-2"></i>LinkedIn
-                                </a>
-                            </div>
-                        </div>
+                <div class="testimonial-author">
+                    <img src="{% static 'core/img/avatar.png'%}" alt="Cliente 2">
+                    <div class="author-info">
+                        <h5>Ricardo Oliveira</h5>
+                        <span>Benguela</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Marcas Parceiras -->
+<div class="sobre-section">
+    <h2>Nossas Marcas Parceiras</h2>
+    <p class="mb-4">Trabalhamos apenas com as melhores marcas do mercado para garantir produtos de alta qualidade.</p>
+    <div class="row">
+        <div class="col-md-3 col-6">
+            <div class="partner-logo">
+                <img src="/media/produtos/product_6.png" alt="Marca Parceira 1">
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="partner-logo">
+                <img src="/media/produtos/product_6.png" alt="Marca Parceira 2">
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="partner-logo">
+                <img src="/media/produtos/product_6.png" alt="Marca Parceira 3">
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="partner-logo">
+                <img src="/media/produtos/product_6.png" alt="Marca Parceira 4">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="cta-section">
+    <div class="container">
+        <h2>Transforme seu Espaço com a Art & Decor</h2>
+        <p class="mb-4">Descubra nossa seleção exclusiva de produtos de decoração e design para o seu lar.</p>
+        <a href="{% url 'produtos:lista' %}" class="btn btn-white">Visite Nossa Loja</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    // Script para animação dos contadores
+    document.addEventListener("DOMContentLoaded", function() {
+        // Esta função seria implementada com bibliotecas como CountUp.js 
+        // para uma animação adequada dos números nas estatísticas
+        
+        // Aqui poderia ser adicionado código para detectar quando o elemento
+        // entra na visualização e iniciar a animação do contador
+    });
+</script>
 {% endblock %}

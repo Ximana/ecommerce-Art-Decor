@@ -104,7 +104,7 @@ class AdicionarAoCarrinhoView(View):
         # Verificar estoque
         estoque_disponivel = variacao.estoque if variacao else produto.estoque
         if quantidade > estoque_disponivel:
-            messages.error(request, f"Quantidade indisponível. Estoque atual: {estoque_disponivel}")
+            #messages.error(request, f"Quantidade indisponível. Estoque atual: {estoque_disponivel}")
             return redirect('produtos:detalhe', pk=produto_id)
             
         # Obter ou criar o carrinho
@@ -135,9 +135,9 @@ class AdicionarAoCarrinhoView(View):
             if nova_quantidade <= estoque_disponivel:
                 item_carrinho.quantidade = nova_quantidade
                 item_carrinho.save()
-                messages.success(request, f"Quantidade de {produto.nome} atualizada no carrinho.")
+                #messages.success(request, f"Quantidade de {produto.nome} atualizada no carrinho.")
             else:
-                messages.warning(request, f"Quantidade total excede o estoque disponível. Adicionado o máximo possível.")
+                #messages.warning(request, f"Quantidade total excede o estoque disponível. Adicionado o máximo possível.")
                 item_carrinho.quantidade = estoque_disponivel
                 item_carrinho.save()
         except ItemCarrinho.DoesNotExist:
@@ -149,7 +149,7 @@ class AdicionarAoCarrinhoView(View):
                 quantidade=quantidade
             )
             item_carrinho.save()
-            messages.success(request, f"{produto.nome} adicionado ao carrinho.")
+            #messages.success(request, f"{produto.nome} adicionado ao carrinho.")
         
         # Se for uma requisição AJAX, retornar JSON
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':

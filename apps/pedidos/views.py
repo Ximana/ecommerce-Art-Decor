@@ -56,8 +56,8 @@ class CheckoutView(LoginRequiredMixin, View):
         # Obter formas de envio ativas
         formas_envio = FormaEnvio.objects.filter(status=True)
         
-        # Obter métodos de pagamento ativos
-        metodos_pagamento = MetodoPagamento.objects.filter(status=True)
+        # Obter métodos de pagamento ativos e disponíveis na loja
+        metodos_pagamento = MetodoPagamento.objects.filter(status=True, mostrar_na_loja=True).order_by('ordem', 'nome')
         
         # Calcular totais
         subtotal = carrinho.calcular_total()
@@ -107,14 +107,28 @@ class CheckoutView(LoginRequiredMixin, View):
             endereco_entrega = Endereco.objects.get(id=endereco_entrega_id, usuario=request.user)
             endereco_cobranca = Endereco.objects.get(id=endereco_cobranca_id, usuario=request.user) if endereco_cobranca_id != endereco_entrega_id else endereco_entrega
             forma_envio = FormaEnvio.objects.get(id=forma_envio_id, status=True)
-            metodo_pagamento = MetodoPagamento.objects.get(id=metodo_pagamento_id, status=True)
+            metodo_pagamento = MetodoPagamento.objects.get(id=metodo_pagamento_id, status=True, mostrar_na_loja=True)
             
             # Calcular valores
             subtotal = carrinho.calcular_total()
             valor_frete = forma_envio.taxa_fixa or 0
+            
+            # Calcular taxas de pagamento
+            taxa_pagamento = metodo_pagamento.get_taxa_total(subtotal)
+            
             # Aqui você poderia implementar lógicas de desconto, cupons, etc.
             valor_desconto = 0
-            valor_total = subtotal + valor_frete - valor_desconto
+            
+            # O valor total agora inclui as taxas do método de pagamento
+            valor_total = subtotal + valor_frete + taxa_pagamento - valor_desconto
+            
+            # Verificar se o valor está dentro dos limites do método de pagamento
+            if not metodo_pagamento.is_valid_for_amount(subtotal):
+                if metodo_pagamento.valor_minimo > 0 and subtotal < metodo_pagamento.valor_minimo:
+                    messages.error(request, f'O valor mínimo para o método de pagamento {metodo_pagamento.nome} é kz {metodo_pagamento.valor_minimo}.')
+                elif metodo_pagamento.valor_maximo > 0 and subtotal > metodo_pagamento.valor_maximo:
+                    messages.error(request, f'O valor máximo para o método de pagamento {metodo_pagamento.nome} é kz {metodo_pagamento.valor_maximo}.')
+                return redirect('pedidos:checkout')
             
             # Criar o pedido
             pedido = Pedido.objects.create(
@@ -125,6 +139,7 @@ class CheckoutView(LoginRequiredMixin, View):
                 metodo_pagamento=metodo_pagamento,
                 subtotal=subtotal,
                 valor_frete=valor_frete,
+                taxa_pagamento=taxa_pagamento,  # Adicionando taxa de pagamento
                 valor_desconto=valor_desconto,
                 valor_total=valor_total,
                 observacoes=observacoes
@@ -161,14 +176,14 @@ class CheckoutView(LoginRequiredMixin, View):
             # Limpar o carrinho após finalizar o pedido
             carrinho.itens.all().delete()
             
-            messages.success(request, f'Seu pedido {pedido.codigo_pedido} foi realizado com sucesso!')
+            #messages.success(request, f'Seu pedido {pedido.codigo_pedido} foi realizado com sucesso!')
             return redirect('pedidos:confirmacao', codigo=pedido.codigo_pedido)
             
         except (Endereco.DoesNotExist, FormaEnvio.DoesNotExist, MetodoPagamento.DoesNotExist) as e:
-            messages.error(request, f'Erro ao processar o pedido: {str(e)}')
+            #messages.error(request, f'Erro ao processar o pedido: {str(e)}')
             return redirect('pedidos:checkout')
         except Exception as e:
-            messages.error(request, f'Ocorreu um erro inesperado: {str(e)}')
+            #messages.error(request, f'Ocorreu um erro inesperado: {str(e)}')
             return redirect('pedidos:checkout')
 
 
@@ -206,7 +221,6 @@ class MeusPedidosView(LoginRequiredMixin, View):
         
         return render(request, self.template_name, context)
 
-
 class DetalhePedidoView(LoginRequiredMixin, View):
     """
     View para exibir os detalhes de um pedido específico
@@ -220,11 +234,15 @@ class DetalhePedidoView(LoginRequiredMixin, View):
         context = {
             'pedido': pedido,
             'itens': pedido.itens.all(),
-            'historico': pedido.historico.all()
+            'historico': pedido.historico.all(),
+            'pagamentos': pedido.pagamentos.all()  # Adicionado
         }
         
+        # Carregar o formulário para envio de comprovante
+        from apps.pagamentos.forms import ComprovantePagamentoForm
+        context['form_comprovante'] = ComprovantePagamentoForm()
+        
         return render(request, self.template_name, context)
-
 
 class CancelarPedidoView(LoginRequiredMixin, View):
     """

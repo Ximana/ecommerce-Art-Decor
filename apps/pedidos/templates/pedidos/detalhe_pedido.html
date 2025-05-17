@@ -7,49 +7,63 @@
 {% block arquivos_css %}
 <style>
     .pedido-page {
-        padding: 50px 0;
+        padding: 30px 0;
     }
     
     .pedido-header {
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
     
     .pedido-status {
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        font-weight: bold;
         display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
         margin-left: 10px;
+        color: white;
     }
     
-    .status-aguardando_pagamento { background-color: #ffc107; color: #000; }
-    .status-pagamento_aprovado { background-color: #17a2b8; color: #fff; }
-    .status-em_separacao { background-color: #6c757d; color: #fff; }
-    .status-enviado { background-color: #28a745; color: #fff; }
-    .status-entregue { background-color: #28a745; color: #fff; }
-    .status-cancelado { background-color: #dc3545; color: #fff; }
+    .status-aguardando_pagamento {
+        background-color: #ffc107;
+    }
+    
+    .status-pagamento_aprovado {
+        background-color: #17a2b8;
+    }
+    
+    .status-em_separacao {
+        background-color: #6c757d;
+    }
+    
+    .status-em_transporte {
+        background-color: #fd7e14;
+    }
+    
+    .status-entregue {
+        background-color: #28a745;
+    }
+    
+    .status-cancelado {
+        background-color: #dc3545;
+    }
     
     .pedido-section {
-        background-color: #fff;
-        border-radius: 5px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
         padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .pedido-section h5 {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
     }
     
     .pedido-info-item {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
     
     .pedido-info-item strong {
         display: block;
+        margin-bottom: 5px;
+    }
+    
+    .pedido-info-item p {
         margin-bottom: 5px;
     }
     
@@ -62,8 +76,6 @@
     }
     
     .pedido-item:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
         border-bottom: none;
     }
     
@@ -78,56 +90,42 @@
     
     .pedido-totals {
         margin-top: 20px;
-        padding-top: 20px;
+        padding-top: 15px;
         border-top: 1px solid #ddd;
     }
     
     .total-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
     
     .final-total {
         font-weight: bold;
-        font-size: 1.2em;
+        font-size: 1.1em;
+        padding-top: 5px;
+        margin-top: 5px;
+        border-top: 1px solid #ddd;
     }
     
     .historico-item {
         display: flex;
         margin-bottom: 15px;
-        position: relative;
-    }
-    
-    .historico-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .historico-item::before {
-        content: '';
-        position: absolute;
-        left: 13px;
-        top: 30px;
-        height: calc(100% + 15px);
-        width: 2px;
-        background-color: #eee;
-    }
-    
-    .historico-item:last-child::before {
-        display: none;
     }
     
     .historico-status {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background-color: #007bff;
-        color: #fff;
+        margin-right: 10px;
+    }
+    
+    .historico-status i {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 15px;
-        z-index: 1;
+        width: 30px;
+        height: 30px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 50%;
     }
     
     .historico-conteudo {
@@ -135,23 +133,46 @@
     }
     
     .historico-data {
+        font-size: 12px;
         color: #6c757d;
-        font-size: 0.9em;
     }
     
     .historico-mensagem {
+        font-size: 14px;
         margin-top: 5px;
     }
     
     .actions-buttons {
         margin-top: 20px;
     }
+    
+    /* Estilos para a seção de detalhes de pagamento */
+    .payment-instructions {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    
+    .payment-info {
+        margin-top: 15px;
+    }
+    
+    .payment-info p {
+        margin-bottom: 5px;
+    }
+    
+    .bank-info {
+        background-color: #fff;
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 10px;
+    }
 </style>
 {% endblock %}
 
 {% block banner %}
 <!-- Banner -->
-<div class="container-fluid shop-header">
+<div class="container-fluid cabecalho-pagina">
     <div class="container">
         <h1 class="text-center">Detalhes do Pedido</h1>
         <p class="text-center">Início - Meus Pedidos - Detalhes</p>
@@ -198,6 +219,9 @@
                                 <div class="pedido-info-item">
                                     <strong>Método de Pagamento</strong>
                                     <p>{{ pedido.metodo_pagamento.nome }}</p>
+                                    {% if pedido.metodo_pagamento.tipo %}
+                                        <small class="text-muted">{{ pedido.metodo_pagamento.get_tipo_display }}</small>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -209,6 +233,12 @@
                                     <strong>Data do Pedido</strong>
                                     <p>{{ pedido.data_pedido|date:"d/m/Y H:i" }}</p>
                                 </div>
+                                {% if pedido.metodo_pagamento.prazo_processamento %}
+                                <div class="pedido-info-item">
+                                    <strong>Prazo de Processamento do Pagamento</strong>
+                                    <p>{{ pedido.metodo_pagamento.prazo_processamento }} dia(s)</p>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -219,6 +249,42 @@
                             </div>
                         {% endif %}
                     </div>
+                    
+                    <!-- Instruções de Pagamento para métodos com detalhes bancários -->
+                    {% if pedido.metodo_pagamento.has_bank_details and pedido.status == 'aguardando_pagamento' %}
+                    <div class="pedido-section">
+                        <h5>Instruções de Pagamento</h5>
+                        <div class="alert alert-info">
+                            <h6>{{ pedido.metodo_pagamento.nome }}</h6>
+                            
+                            <div class="bank-info">
+                                <p><strong>{{ pedido.metodo_pagamento.get_banco_display }}</strong></p>
+                                {% if pedido.metodo_pagamento.titular_conta %}
+                                    <p><strong>Titular:</strong> {{ pedido.metodo_pagamento.titular_conta }}</p>
+                                {% endif %}
+                                {% if pedido.metodo_pagamento.numero_conta %}
+                                    <p><strong>Conta:</strong> {{ pedido.metodo_pagamento.numero_conta }}</p>
+                                {% endif %}
+                                {% if pedido.metodo_pagamento.iban %}
+                                    <p><strong>IBAN:</strong> {{ pedido.metodo_pagamento.iban }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            {% if pedido.metodo_pagamento.instrucoes %}
+                                <hr>
+                                <h6>Como proceder:</h6>
+                                <div>{{ pedido.metodo_pagamento.instrucoes|linebreaks }}</div>
+                            {% endif %}
+                            
+                            <p class="mb-0 mt-3">
+                                <strong>Valor a transferir:</strong> kz {{ pedido.valor_total|floatformat:2 }}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Referência:</strong> Pedido #{{ pedido.codigo_pedido }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     <!-- Endereços -->
                     <div class="pedido-section">
@@ -252,7 +318,7 @@
                                 {% if item.produto.imagens.first %}
                                     <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}">
                                 {% else %}
-                                    <img src="{% static 'img/no-image.png' %}" alt="{{ item.produto.nome }}">
+                                    <img src="/media/produtos/produto-sem-imagem.png" alt="{{ item.produto.nome }}">
                                 {% endif %}
                                 
                                 <div class="pedido-item-details">
@@ -280,6 +346,12 @@
                                 <span>Frete:</span>
                                 <span>kz {{ pedido.valor_frete|floatformat:2 }}</span>
                             </div>
+                            {% if pedido.taxa_pagamento > 0 %}
+                            <div class="total-row">
+                                <span>Taxa de pagamento:</span>
+                                <span>kz {{ pedido.taxa_pagamento|floatformat:2 }}</span>
+                            </div>
+                            {% endif %}
                             {% if pedido.valor_desconto > 0 %}
                                 <div class="total-row">
                                     <span>Desconto:</span>
@@ -316,17 +388,95 @@
                             </div>
                         {% endfor %}
                     </div>
+
+                    <!-- Pagamentos do Pedido -->
+                    {% if pedido.pagamentos.exists %}
+                    <div class="pedido-section">
+                        <h5>Pagamentos</h5>
+                        
+                        {% for pagamento in pedido.pagamentos.all %}
+                            <div class="payment-item mb-3 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <strong>{{ pagamento.metodo.nome }}</strong>
+                                        <span class="badge {% if pagamento.status == 'aprovado' %}bg-success{% elif pagamento.status == 'pendente' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ pagamento.get_status_display }}
+                                        </span>
+                                    </span>
+                                    <span>kz {{ pagamento.valor|floatformat:2 }}</span>
+                                </div>
+                                
+                                {% if pagamento.data_pagamento %}
+                                <div class="small text-muted mt-1">
+                                    Pagamento em {{ pagamento.data_pagamento|date:"d/m/Y H:i" }}
+                                </div>
+                                {% endif %}
+                                
+                                {% if pagamento.comprovante %}
+                                <div class="mt-2">
+                                    <a href="{{ pagamento.comprovante.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i> Ver Comprovante
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                {% if pagamento.status == 'pendente' %}
+                                <div class="alert alert-info mt-2 mb-0 small py-2">
+                                    Seu comprovante está sendo analisado. Aguarde a confirmação.
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+
+
+                    
+                    <!-- Detalhes do Método de Pagamento -->
+                    {% if pedido.metodo_pagamento %}
+                    <div class="pedido-section">
+                        <h5>Detalhes do Pagamento</h5>
+                        
+                        <div class="payment-info">
+                            <p><strong>{{ pedido.metodo_pagamento.nome }}</strong> 
+                               <span class="badge badge-light">{{ pedido.metodo_pagamento.get_tipo_display }}</span>
+                            </p>
+                            
+                            {% if pedido.metodo_pagamento.taxa > 0 or pedido.metodo_pagamento.taxa_fixa > 0 %}
+                            <p>
+                                <strong>Taxa:</strong> 
+                                {% if pedido.metodo_pagamento.taxa > 0 %}{{ pedido.metodo_pagamento.taxa }}%{% endif %}
+                                {% if pedido.metodo_pagamento.taxa > 0 and pedido.metodo_pagamento.taxa_fixa > 0 %} + {% endif %}
+                                {% if pedido.metodo_pagamento.taxa_fixa > 0 %}kz {{ pedido.metodo_pagamento.taxa_fixa|floatformat:2 }}{% endif %}
+                            </p>
+                            {% endif %}
+                            
+                            {% if pedido.metodo_pagamento.descricao %}
+                            <p>
+                                <strong>Descrição:</strong> {{ pedido.metodo_pagamento.descricao }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     <!-- Ações disponíveis -->
                     <div class="actions-buttons">
+                        {% if pedido.status == 'aguardando_pagamento' %}
+                            <button type="button" class="btn btn-primary btn-block mb-2" data-bs-toggle="modal" data-bs-target="#enviarComprovanteModal">
+                                <i class="fas fa-upload"></i> Enviar Comprovante
+                            </button>
+                        {% endif %}
+                        
                         {% if pedido.status in 'aguardando_pagamento,pagamento_aprovado,em_separacao' %}
-                            <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#cancelarPedidoModal">
+                            <button type="button" class="btn btn-danger btn-block" data-bs-toggle="modal" data-bs-target="#cancelarPedidoModal">
                                 Cancelar Pedido
                             </button>
                         {% endif %}
                         
                         {% if pedido.status == 'em_transporte' %}
-                            <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#confirmacaoEntregaModal">
+                            <button type="button" class="btn btn-success btn-block" data-bs-toggle="modal" data-bs-target="#confirmacaoEntregaModal">
                                 Confirmar Recebimento
                             </button>
                         {% endif %}
@@ -343,16 +493,19 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="cancelarPedidoModalLabel">Cancelar Pedido</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                ></button>
             </div>
             <div class="modal-body">
                 <p>Tem certeza que deseja cancelar o pedido #{{ pedido.codigo_pedido }}?</p>
                 <p>Esta ação não pode ser desfeita.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
                 <form method="post" action="{% url 'pedidos:cancelar' codigo=pedido.codigo_pedido %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Confirmar Cancelamento</button>
@@ -368,19 +521,84 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="confirmacaoEntregaModalLabel">Confirmar Recebimento</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                ></button>
             </div>
             <div class="modal-body">
                 <p>Confirma que recebeu o pedido #{{ pedido.codigo_pedido }}?</p>
                 <p>Ao confirmar, você está indicando que o pedido foi entregue corretamente.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
                 <form method="post" action="{% url 'pedidos:confirmar_entrega' codigo=pedido.codigo_pedido %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success">Confirmar Recebimento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para enviar comprovante de pagamento -->
+<div class="modal fade" id="enviarComprovanteModal" tabindex="-1" role="dialog" aria-labelledby="enviarComprovanteModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="enviarComprovanteModalLabel">Enviar Comprovante de Pagamento</h5>
+                <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'pagamentos:enviar_comprovante' codigo=pedido.codigo_pedido %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="alert alert-info">
+                        <p><strong>Método de Pagamento:</strong> {{ pedido.metodo_pagamento.nome }}</p>
+                        <p><strong>Valor Total:</strong> kz {{ pedido.valor_total|floatformat:2 }}</p>
+                        
+                        {% if pedido.metodo_pagamento.has_bank_details %}
+                        <hr>
+                        <div class="bank-info">
+                            <p><strong>{{ pedido.metodo_pagamento.get_banco_display }}</strong></p>
+                            {% if pedido.metodo_pagamento.titular_conta %}
+                                <p><strong>Titular:</strong> {{ pedido.metodo_pagamento.titular_conta }}</p>
+                            {% endif %}
+                            {% if pedido.metodo_pagamento.numero_conta %}
+                                <p><strong>Conta:</strong> {{ pedido.metodo_pagamento.numero_conta }}</p>
+                            {% endif %}
+                            {% if pedido.metodo_pagamento.iban %}
+                                <p><strong>IBAN:</strong> {{ pedido.metodo_pagamento.iban }}</p>
+                            {% endif %}
+                            <p class="mb-0">
+                                <strong>Referência:</strong> Pedido #{{ pedido.codigo_pedido }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="comprovante" class="form-label">Comprovante de Pagamento*</label>
+                        <input type="file" class="form-control" id="comprovante" name="comprovante" accept="image/*, application/pdf" required>
+                        <small class="form-text text-muted">Envie uma imagem ou PDF do comprovante de transferência ou pagamento</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="detalhes_pagamento" class="form-label">Detalhes do Pagamento</label>
+                        <textarea class="form-control" id="detalhes_pagamento" name="detalhes_pagamento" rows="3" placeholder="Informe detalhes adicionais sobre o pagamento (opcional)"></textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Enviar Comprovante</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -390,7 +608,17 @@
 
 {% block scriptJS %}
 <script>
-    
-    
+    // Corrigir problemas de compatibilidade entre Bootstrap 4 e 5
+    $(document).ready(function() {
+        // Para compatibilidade com Bootstrap 4 e 5
+        $('[data-toggle="modal"]').click(function() {
+            var targetModal = $(this).data('target');
+            $(targetModal).modal('show');
+        });
+        
+        $('.modal .close, .modal .btn-close').click(function() {
+            $(this).closest('.modal').modal('hide');
+        });
+    });
 </script>
 {% endblock %}

@@ -1,0 +1,529 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Cadastro - Art & Decor{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .signup-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .signup-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .signup-header h2 {
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .signup-header p {
+        color: #777;
+    }
+    
+    .signup-form .form-control,
+    .signup-form .form-select {
+        height: 50px;
+        border-radius: 5px;
+        box-shadow: none;
+        margin-bottom: 10px;
+        padding-left: 15px;
+        border: 1px solid #ddd;
+    }
+    
+    .signup-form .form-control:focus,
+    .signup-form .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .signup-form .input-group-text {
+        background-color: transparent;
+        border-right: none;
+        color: #777;
+    }
+    
+    .signup-form .btn-primary {
+        height: 50px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .signup-form .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .signup-separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+        color: #777;
+    }
+    
+    .signup-separator::before,
+    .signup-separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .signup-separator::before {
+        margin-right: 10px;
+    }
+    
+    .signup-separator::after {
+        margin-left: 10px;
+    }
+    
+    .social-signup {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .social-signup .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        color: white;
+        font-size: 18px;
+        transition: all 0.3s;
+    }
+    
+    .social-signup .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-facebook {
+        background-color: #3b5998;
+    }
+    
+    .btn-google {
+        background-color: #db4437;
+    }
+    
+    .btn-apple {
+        background-color: #000;
+    }
+    
+    .signup-footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #777;
+    }
+    
+    .signup-footer a {
+        color: #007bff;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .signup-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .signup-banner {
+        background-color: #f8f9fa;
+        padding: 50px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .signup-banner h1 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .signup-banner p {
+        color: #777;
+    }
+    
+    .form-check-input:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .alert-signup {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    
+    .signup-illustration {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .signup-illustration img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+    .input-group-text {
+        border-right: none;
+    }
+
+    .form-control {
+        border-left: none;
+    }
+
+    .password-requirements {
+        font-size: 0.8rem;
+        color: #777;
+        margin-top: 5px;
+    }
+
+    .input-file-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .input-file-wrapper input[type=file] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .input-file-trigger {
+        display: block;
+        padding: 10px 15px;
+        background: #f8f9fa;
+        color: #555;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .input-file-trigger:hover {
+        background: #e9ecef;
+    }
+
+    #file-name {
+        margin-top: 5px;
+        font-size: 0.85rem;
+        color: #777;
+    }
+    
+    @media (max-width: 767px) {
+        .signup-illustration {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<div class="container-fluid signup-banner">
+    <div class="container">
+        <h1>Criar Conta</h1>
+        <p>Cadastre-se e comece a desfrutar dos benefícios da Art & Decor</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="signup-illustration">
+            <img src="{% static 'core/img/logo.png' %}" alt="Signup Illustration" 
+                 onerror="this.onerror=null; this.src='/media/produtos/product_6.png';">
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="signup-container">
+            <div class="signup-header">
+                <h2>Crie sua conta</h2>
+                <p>Preencha o formulário abaixo para se cadastrar</p>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-signup">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-signup">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data" class="signup-form">
+                {% csrf_token %}
+                <!-- Campo oculto para definir tipo_usuario como 'cliente' -->
+                <input type="hidden" name="tipo_usuario" value="cliente">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Nome</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="first_name" id="first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" placeholder="Seu nome" required>
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Sobrenome</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="last_name" id="last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" placeholder="Seu sobrenome" required>
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nome de Usuário</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-at"></i></span>
+                                <input type="text" name="username" id="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" placeholder="Nome de usuário" required>
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" name="email" id="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" placeholder="seu.email@exemplo.com" required>
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Campo senha movido aqui para ficaram lado a lado em telas maiores -->
+                        <div class="mb-3">
+                            <label for="password1" class="form-label">Senha</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password1" id="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" placeholder="Sua senha" required>
+                                {% if form.password1.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password1.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="password-requirements">A senha deve ter pelo menos 8 caracteres e incluir letras e números.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="text" name="telefone" id="telefone" class="form-control {% if form.telefone.errors %}is-invalid{% endif %}" value="{{ form.telefone.value|default:'' }}" placeholder="912 345 678">
+                                {% if form.telefone.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.telefone.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bi" class="form-label">Número do BI</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input type="text" name="bi" id="bi" class="form-control {% if form.bi.errors %}is-invalid{% endif %}" value="{{ form.bi.value|default:'' }}" placeholder="001234567LA123">
+                                {% if form.bi.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.bi.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                <input type="date" name="data_nascimento" id="data_nascimento" class="form-control {% if form.data_nascimento.errors %}is-invalid{% endif %}" value="{{ form.data_nascimento.value|default:'' }}">
+                                {% if form.data_nascimento.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.data_nascimento.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="foto_perfil" class="form-label">Foto de Perfil</label>
+                            <div class="input-file-wrapper">
+                                <div class="input-file-trigger">
+                                    <i class="fas fa-upload me-2"></i>Escolher foto de perfil
+                                </div>
+                                <input type="file" name="foto_perfil" id="foto_perfil" class="form-control-file {% if form.foto_perfil.errors %}is-invalid{% endif %}" accept="image/*">
+                            </div>
+                            <div id="file-name"></div>
+                            {% if form.foto_perfil.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.foto_perfil.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Campo confirmar senha movido aqui para ficaram lado a lado em telas maiores -->
+                        <div class="mb-3">
+                            <label for="password2" class="form-label">Confirmar Senha</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password2" id="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" placeholder="Confirme sua senha" required>
+                                {% if form.password2.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password2.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Eu concordo com os <a href="#" class="text-primary">Termos de Uso</a> e <a href="#" class="text-primary">Política de Privacidade</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-4">Criar Conta</button>
+                
+                <div class="signup-separator">ou cadastre-se com</div>
+                <div class="social-signup">
+                    <a href="#" class="btn btn-facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="btn btn-google"><i class="fab fa-google"></i></a>
+                    <a href="#" class="btn btn-apple"><i class="fab fa-apple"></i></a>
+                </div>
+                
+                <div class="signup-footer">
+                    <p>Já tem uma conta? <a href="{% url 'usuarios:login' %}">Faça login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    // Script para mostrar o nome do arquivo selecionado
+    document.getElementById('foto_perfil').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : '';
+        document.getElementById('file-name').textContent = fileName ? 'Arquivo selecionado: ' + fileName : '';
+    });
+    
+    // Máscara atualizada para o telefone no formato 912 345 678
+    document.getElementById('telefone').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Adiciona espaço após os primeiros 3 dígitos
+        if (value.length > 3) {
+            value = value.substring(0, 3) + ' ' + value.substring(3);
+        }
+        
+        // Adiciona segundo espaço após os próximos 3 dígitos
+        if (value.length > 7) {
+            value = value.substring(0, 7) + ' ' + value.substring(7);
+        }
+        
+        // Limita o comprimento total para o formato 912 345 678
+        e.target.value = value.substring(0, 11);
+    });
+    
+    // Máscara atualizada para o BI no formato 001234567LA123
+    document.getElementById('bi').addEventListener('input', function (e) {
+        let value = e.target.value;
+        
+        // Permite apenas números para os primeiros 9 caracteres
+        let numericPart = value.replace(/\D/g, '').substring(0, 9);
+        
+        // Permite letras para os caracteres 10 e 11
+        let letterPart = '';
+        if (value.length > numericPart.length) {
+            letterPart = value.substring(numericPart.length).replace(/[^A-Za-z]/g, '').substring(0, 2).toUpperCase();
+        }
+        
+        // Permite números para os últimos 3 caracteres
+        let finalPart = '';
+        if (value.length > numericPart.length + letterPart.length) {
+            finalPart = value.substring(numericPart.length + letterPart.length).replace(/\D/g, '').substring(0, 3);
+        }
+        
+        // Monta o formato 001234567LA123
+        e.target.value = numericPart + letterPart + finalPart;
+    });
+</script>
+{% endblock %}

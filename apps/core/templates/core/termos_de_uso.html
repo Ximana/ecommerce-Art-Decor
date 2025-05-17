@@ -1,0 +1,422 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Termos de Uso - Art & Decor{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .terms-banner {
+        background-color: #f8f9fa;
+        padding: 50px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .terms-banner h1 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .terms-banner p {
+        color: #777;
+    }
+    
+    .terms-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .terms-section {
+        margin-bottom: 30px;
+    }
+    
+    .terms-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .terms-section h2 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f1f1f1;
+    }
+    
+    .terms-section h3 {
+        color: #444;
+        font-weight: 500;
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .terms-section p {
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.7;
+    }
+    
+    .terms-section ul, .terms-section ol {
+        margin-bottom: 20px;
+        color: #666;
+    }
+    
+    .terms-section li {
+        margin-bottom: 10px;
+        line-height: 1.7;
+    }
+    
+    .terms-section .highlight-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+    
+    .terms-section .highlight-box p {
+        margin-bottom: 0;
+        color: #555;
+    }
+    
+    .last-updated {
+        font-style: italic;
+        color: #999;
+        margin-top: 40px;
+        font-size: 0.9rem;
+        text-align: right;
+    }
+    
+    .toc {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .toc h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .toc ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    
+    .toc ul li {
+        margin-bottom: 10px;
+    }
+    
+    .toc ul li a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    .toc ul li a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+    
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #007bff;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .back-to-top.visible {
+        opacity: 1;
+    }
+    
+    .back-to-top:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+    
+    @media (max-width: 767px) {
+        .terms-container {
+            padding: 20px;
+        }
+        
+        .back-to-top {
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<div class="container-fluid terms-banner">
+    <div class="container">
+        <h1>Termos de Uso</h1>
+        <p>Leia atentamente os termos e condições para utilização da Art & Decor</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="terms-container">
+            <div class="toc">
+                <h3>Índice</h3>
+                <ul>
+                    <li><a href="#introducao">1. Introdução</a></li>
+                    <li><a href="#definicoes">2. Definições</a></li>
+                    <li><a href="#cadastro">3. Cadastro e Conta</a></li>
+                    <li><a href="#produtos">4. Produtos e Serviços</a></li>
+                    <li><a href="#precos">5. Preços e Pagamentos</a></li>
+                    <li><a href="#entrega">6. Entrega e Frete</a></li>
+                    <li><a href="#trocas">7. Política de Trocas e Devoluções</a></li>
+                    <li><a href="#privacidade">8. Privacidade e Proteção de Dados</a></li>
+                    <li><a href="#propriedade">9. Propriedade Intelectual</a></li>
+                    <li><a href="#limitacoes">10. Limitações de Responsabilidade</a></li>
+                    <li><a href="#modificacoes">11. Modificações dos Termos</a></li>
+                    <li><a href="#lei">12. Lei Aplicável</a></li>
+                </ul>
+            </div>
+            
+            <div class="terms-section" id="introducao">
+                <h2>1. Introdução</h2>
+                <p>Bem-vindo à Art & Decor! Estes Termos de Uso ("Termos") regem o seu acesso e utilização do website Art & Decor (www.artedecor.ao), incluindo qualquer conteúdo, funcionalidade e serviços oferecidos no ou através do website.</p>
+                <p>Ao utilizar o nosso website, você aceita e concorda em ficar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não poderá acessar o website ou utilizar qualquer um dos nossos serviços.</p>
+                <div class="highlight-box">
+                    <p><strong>Nota Importante:</strong> Leia estes termos cuidadosamente antes de utilizar nossos serviços. Ao utilizar o site Art & Decor, você confirma que é maior de 18 anos ou que possui autorização dos seus pais ou responsáveis legais.</p>
+                </div>
+            </div>
+            
+            <div class="terms-section" id="definicoes">
+                <h2>2. Definições</h2>
+                <p>Para melhor compreensão destes Termos, os seguintes termos terão os significados abaixo:</p>
+                <ul>
+                    <li><strong>"Art & Decor"</strong> ou <strong>"nós"</strong> refere-se à empresa Art & Decor, LTDA, proprietária e operadora do website.</li>
+                    <li><strong>"Plataforma"</strong> refere-se ao website www.artedecor.ao e todos os seus subdomínios.</li>
+                    <li><strong>"Usuário"</strong>, <strong>"você"</strong> ou <strong>"cliente"</strong> refere-se a qualquer pessoa que acesse ou utilize a nossa Plataforma.</li>
+                    <li><strong>"Conteúdo"</strong> refere-se a textos, gráficos, imagens, músicas, softwares, áudios, vídeos, artigos e outros materiais que possam ser visualizados na Plataforma.</li>
+                    <li><strong>"Produtos"</strong> refere-se a todos os itens disponíveis para compra na Plataforma.</li>
+                </ul>
+            </div>
+            
+            <div class="terms-section" id="cadastro">
+                <h2>3. Cadastro e Conta</h2>
+                <p>Para realizar compras na Art & Decor, é necessário criar uma conta fornecendo informações precisas e completas conforme solicitado no formulário de cadastro. Você é responsável por manter a confidencialidade de sua senha e por todas as atividades que ocorrem em sua conta.</p>
+                
+                <h3>3.1 Requisitos para Cadastro</h3>
+                <p>Para se cadastrar em nossa plataforma, você deve:</p>
+                <ul>
+                    <li>Ter pelo menos 18 anos de idade ou possuir autorização de um responsável legal;</li>
+                    <li>Fornecer informações verdadeiras, precisas, atuais e completas;</li>
+                    <li>Manter suas informações de cadastro atualizadas;</li>
+                    <li>Criar uma senha segura e não compartilhá-la com terceiros.</li>
+                </ul>
+                
+                <h3>3.2 Responsabilidades da Conta</h3>
+                <p>Você concorda em:</p>
+                <ul>
+                    <li>Ser o único responsável por todas as atividades realizadas com seu nome de usuário e senha;</li>
+                    <li>Notificar imediatamente a Art & Decor sobre qualquer uso não autorizado de sua conta;</li>
+                    <li>Garantir que saia da sua conta ao final de cada sessão;</li>
+                    <li>Não permitir que terceiros utilizem sua conta.</li>
+                </ul>
+                
+                <h3>3.3 Suspensão ou Encerramento de Conta</h3>
+                <p>A Art & Decor reserva-se o direito de, a seu exclusivo critério, suspender ou encerrar o acesso de qualquer usuário à Plataforma, sem aviso prévio, por qualquer razão, incluindo, mas não se limitando a, violação destes Termos.</p>
+            </div>
+            
+            <div class="terms-section" id="produtos">
+                <h2>4. Produtos e Serviços</h2>
+                <p>A Art & Decor oferece uma variedade de produtos de decoração para casa e artigos relacionados. Fazemos o possível para apresentar com precisão as cores, dimensões e características dos nossos produtos, mas não podemos garantir que seu dispositivo exibirá as cores com exatidão.</p>
+                
+                <h3>4.1 Disponibilidade de Produtos</h3>
+                <p>Todos os produtos estão sujeitos à disponibilidade de estoque. Reservamo-nos o direito de descontinuar qualquer produto a qualquer momento. Se um produto não estiver disponível após a realização do pedido, entraremos em contato para oferecer um produto alternativo ou cancelar seu pedido.</p>
+                
+                <h3>4.2 Descrição de Produtos</h3>
+                <p>Embora nos esforcemos para fornecer descrições precisas dos produtos, pequenas variações podem ocorrer. As imagens dos produtos são ilustrativas e podem variar ligeiramente do produto real.</p>
+            </div>
+            
+            <div class="terms-section" id="precos">
+                <h2>5. Preços e Pagamentos</h2>
+                <p>Todos os preços exibidos na Plataforma são expressos em Kwanza (Kz) e incluem os impostos aplicáveis. Os preços estão sujeitos a alterações sem aviso prévio.</p>
+                
+                <h3>5.1 Formas de Pagamento</h3>
+                <p>Aceitamos as seguintes formas de pagamento:</p>
+                <ul>
+                    <li>Cartões de crédito (Visa, Mastercard)</li>
+                    <li>Transferência bancária</li>
+                    <li>Pagamento por referência</li>
+                    <li>Outros métodos conforme disponíveis na plataforma</li>
+                </ul>
+                
+                <h3>5.2 Segurança nas Transações</h3>
+                <p>Utilizamos tecnologia de criptografia padrão da indústria para proteger suas informações financeiras durante o processamento das transações. No entanto, não podemos garantir que a transmissão de dados pela internet seja 100% segura.</p>
+                
+                <h3>5.3 Promoções e Descontos</h3>
+                <p>Eventuais promoções, descontos ou cupons podem ser oferecidos por tempo limitado e estão sujeitos a termos e condições específicos informados no momento da oferta.</p>
+            </div>
+            
+            <div class="terms-section" id="entrega">
+                <h2>6. Entrega e Frete</h2>
+                <p>Realizamos entregas em todo o território nacional de Angola. O prazo de entrega varia de acordo com a localização do endereço de entrega e a disponibilidade do produto.</p>
+                
+                <h3>6.1 Prazos de Entrega</h3>
+                <p>Os prazos de entrega são estimados e começam a contar a partir da confirmação do pagamento. Fatores externos como condições climáticas, problemas de tráfego ou outros imprevistos podem afetar o prazo de entrega.</p>
+                
+                <h3>6.2 Valor do Frete</h3>
+                <p>O valor do frete é calculado com base no endereço de entrega, dimensões e peso dos produtos. O valor exato será informado antes da finalização da compra.</p>
+                
+                <h3>6.3 Recebimento de Produtos</h3>
+                <p>No ato do recebimento, verifique se o produto está em perfeitas condições. Em caso de avarias visíveis na embalagem ou no produto, recuse o recebimento e entre em contato com nosso Serviço de Atendimento ao Cliente.</p>
+            </div>
+            
+            <div class="terms-section" id="trocas">
+                <h2>7. Política de Trocas e Devoluções</h2>
+                <p>A Art & Decor se compromete a oferecer produtos de qualidade. Caso não esteja satisfeito com sua compra, você pode solicitar troca ou devolução nos termos desta política.</p>
+                
+                <h3>7.1 Prazo para Devolução</h3>
+                <p>Você tem até 7 (sete) dias corridos, a contar da data de recebimento, para solicitar a devolução do produto por arrependimento ou desistência da compra.</p>
+                
+                <h3>7.2 Condições para Troca ou Devolução</h3>
+                <p>Para que a troca ou devolução seja aceita, é necessário que:</p>
+                <ul>
+                    <li>O produto esteja em sua embalagem original;</li>
+                    <li>O produto esteja acompanhado de todos os acessórios e manuais;</li>
+                    <li>O produto não apresente sinais de uso;</li>
+                    <li>O produto não tenha sido montado (caso aplicável).</li>
+                </ul>
+                
+                <h3>7.3 Procedimento para Solicitação</h3>
+                <p>Para solicitar uma troca ou devolução, entre em contato com nosso Serviço de Atendimento ao Cliente pelo e-mail contato@artedecor.ao ou pelo telefone (123) 456-7890, informando o número do pedido e o motivo da devolução.</p>
+            </div>
+            
+            <div class="terms-section" id="privacidade">
+                <h2>8. Privacidade e Proteção de Dados</h2>
+                <p>A Art & Decor valoriza a privacidade de seus usuários e se compromete a proteger os dados pessoais coletados. Nossa Política de Privacidade descreve como coletamos, usamos, compartilhamos e protegemos suas informações.</p>
+                
+                <h3>8.1 Coleta de Dados</h3>
+                <p>Coletamos dados pessoais fornecidos diretamente por você durante o cadastro, realização de compras ou contato com nosso suporte. Também coletamos dados de navegação como endereço IP e cookies.</p>
+                
+                <h3>8.2 Uso dos Dados</h3>
+                <p>Utilizamos seus dados para:</p>
+                <ul>
+                    <li>Processar e entregar seus pedidos;</li>
+                    <li>Fornecer suporte ao cliente;</li>
+                    <li>Melhorar nossos produtos e serviços;</li>
+                    <li>Enviar comunicações de marketing (se autorizado);</li>
+                    <li>Cumprir obrigações legais.</li>
+                </ul>
+                
+                <h3>8.3 Compartilhamento de Dados</h3>
+                <p>Podemos compartilhar seus dados com parceiros de negócios, prestadores de serviços e autoridades públicas quando necessário para o cumprimento das finalidades listadas acima ou por exigência legal.</p>
+                
+                <div class="highlight-box">
+                    <p><strong>Atenção:</strong> Para mais informações sobre como tratamos seus dados pessoais, consulte nossa <a href="#">Política de Privacidade</a>.</p>
+                </div>
+            </div>
+            
+            <div class="terms-section" id="propriedade">
+                <h2>9. Propriedade Intelectual</h2>
+                <p>Todo o conteúdo presente na Plataforma, incluindo, mas não se limitando a, textos, gráficos, logotipos, ícones, imagens, clipes de áudio, downloads digitais e compilações de dados, é de propriedade exclusiva da Art & Decor ou de seus fornecedores e está protegido por leis nacionais e internacionais de propriedade intelectual.</p>
+                
+                <h3>9.1 Uso do Conteúdo</h3>
+                <p>É expressamente proibido copiar, modificar, distribuir, transmitir, exibir, vender, licenciar ou explorar qualquer conteúdo da Plataforma para qualquer finalidade sem o consentimento prévio por escrito da Art & Decor.</p>
+                
+                <h3>9.2 Marcas Registradas</h3>
+                <p>O nome "Art & Decor" e outras marcas, logotipos e nomes de produtos mencionados ou exibidos na Plataforma são marcas registradas da Art & Decor ou de seus respectivos proprietários.</p>
+            </div>
+            
+            <div class="terms-section" id="limitacoes">
+                <h2>10. Limitações de Responsabilidade</h2>
+                <p>A Art & Decor envida todos os esforços para garantir a precisão das informações apresentadas na Plataforma, mas não pode garantir que estejam completamente livres de erros ou omissões.</p>
+                
+                <h3>10.1 Uso da Plataforma</h3>
+                <p>O uso da Plataforma é por sua conta e risco. A Art & Decor não será responsável por quaisquer danos diretos, indiretos, incidentais, consequenciais ou punitivos resultantes do acesso ou uso da Plataforma.</p>
+                
+                <h3>10.2 Disponibilidade da Plataforma</h3>
+                <p>A Art & Decor não garante que a Plataforma estará disponível ininterruptamente ou livre de erros. Poderemos realizar pausas para manutenção ou atualizações sem aviso prévio.</p>
+                
+                <h3>10.3 Links para Sites de Terceiros</h3>
+                <p>A Plataforma pode conter links para sites de terceiros. A Art & Decor não é responsável pelo conteúdo ou práticas de privacidade desses sites e o acesso a eles é por sua conta e risco.</p>
+            </div>
+            
+            <div class="terms-section" id="modificacoes">
+                <h2>11. Modificações dos Termos</h2>
+                <p>A Art & Decor reserva-se o direito de modificar estes Termos a qualquer momento, publicando os termos modificados na Plataforma. É sua responsabilidade verificar periodicamente se houve alterações.</p>
+                <p>O uso continuado da Plataforma após a publicação de quaisquer modificações constitui aceitação dessas modificações.</p>
+            </div>
+            
+            <div class="terms-section" id="lei">
+                <h2>12. Lei Aplicável</h2>
+                <p>Estes Termos são regidos e interpretados de acordo com as leis de Angola. Qualquer disputa relacionada a estes Termos será submetida à jurisdição exclusiva dos tribunais de Luanda, Angola.</p>
+            </div>
+            
+            <div class="last-updated">
+                <p>Última atualização: 22 de Abril de 2025</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="#" class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+</a>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    // Script para mostrar/ocultar o botão "Voltar ao topo"
+    window.addEventListener('scroll', function() {
+        var backToTopButton = document.getElementById('backToTop');
+        if (window.pageYOffset > 300) {
+            backToTopButton.classList.add('visible');
+        } else {
+            backToTopButton.classList.remove('visible');
+        }
+    });
+    
+    // Script para rolagem suave ao clicar no botão "Voltar ao topo"
+    document.getElementById('backToTop').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Script para rolagem suave ao clicar nos links do índice
+    document.querySelectorAll('.toc a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var targetId = this.getAttribute('href').substring(1);
+            var targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -104,7 +104,7 @@
 
 {% block banner %}
 <!-- Banner -->
-<div class="container-fluid shop-header">
+<div class="container-fluid cabecalho-pagina">
     <div class="container">
         <h1 class="text-center">Meus Pedidos</h1>
         <p class="text-center">Início - Meus Pedidos</p>
@@ -178,7 +178,7 @@
                                     {% if item.produto.imagens.first %}
                                         <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}">
                                     {% else %}
-                                        <img src="{% static 'img/no-image.png' %}" alt="{{ item.produto.nome }}">
+                                        <img src="/media/produtos/produto-sem-imagem.png" alt="{{ item.produto.nome }}">
                                     {% endif %}
                                     
                                     <div class="pedido-item-details">
@@ -212,7 +212,7 @@
                                         </a>
                                         
                                         {% if pedido.status in 'aguardando_pagamento,pagamento_aprovado,em_separacao' %}
-                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#cancelarPedidoModal{{ pedido.id }}">
+                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelarPedidoModal{{ pedido.id }}">
                                             Cancelar Pedido
                                         </button>
                                         {% endif %}
@@ -233,16 +233,19 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="cancelarPedidoModalLabel">Cancelar Pedido</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                        ></button>
                                 </div>
                                 <div class="modal-body">
                                     <p>Tem certeza que deseja cancelar o pedido #{{ pedido.codigo_pedido }}?</p>
                                     <p>Esta ação não pode ser desfeita.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
                                     <form method="post" action="{% url 'pedidos:cancelar' codigo=pedido.codigo_pedido %}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger">Confirmar Cancelamento</button>
@@ -257,7 +260,7 @@
                     <i class="fas fa-shopping-bag"></i>
                     <h4>Você ainda não tem pedidos</h4>
                     <p>Quando você fizer um pedido, ele aparecerá aqui.</p>
-                    <a href="{% url 'produtos:listar' %}" class="btn btn-primary mt-3">Ir às Compras</a>
+                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary mt-3">Ir às Compras</a>
                 </div>
             {% endif %}
         </div>

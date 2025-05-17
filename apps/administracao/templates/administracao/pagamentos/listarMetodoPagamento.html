@@ -23,7 +23,15 @@
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form class="row g-3" action="{% url 'administracao:metodo_pagamento_lista' %}" method="GET">
-                <div class="col-md-10">
+                <div class="col-md-4">
+                    <select name="tipo" class="form-select">
+                        <option value="todos" {% if tipo_filter == 'todos' or not tipo_filter %}selected{% endif %}>Todos os tipos</option>
+                        {% for value, label in tipo_choices %}
+                        <option value="{{ value }}" {% if tipo_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text bg-success text-white">
                             <i class="fas fa-search"></i>
@@ -53,7 +61,7 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr class="bg-dark text-white">
-                            <th colspan="7" class="ps-3">
+                            <th colspan="8" class="ps-3">
                                 Métodos de Pagamento
                                 <a href="" class="float-end text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir Lista de Métodos">
                                     <i class="fas fa-print"></i>
@@ -62,10 +70,12 @@
                         </tr>
                         <tr class="bg-success text-white">
                             <th scope="col" class="ps-3">Nome</th>
+                            <th scope="col">Tipo</th>
                             <th scope="col">Taxa</th>
+                            <th scope="col">Taxa Fixa</th>
                             <th scope="col">Prazo</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Descrição</th>
+                            <th scope="col">Visível</th>
                             <th scope="col" class="text-end pe-3">Ações</th>
                         </tr>
                     </thead>
@@ -83,16 +93,29 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>{{ metodo.get_tipo_display }}</td>
                             <td>{{ metodo.taxa }}%</td>
+                            <td>{{ metodo.taxa_fixa }} AOA</td>
                             <td>{{ metodo.prazo_processamento }} dia(s)</td>
                             <td>
                                 <span class="badge {% if metodo.status %}bg-success{% else %}bg-danger{% endif %}">
                                     {{ metodo.status|yesno:"Ativo,Inativo" }}
                                 </span>
                             </td>
-                            <td>{{ metodo.descricao|truncatechars:50|default:"-" }}</td>
+                            <td>
+                                <span class="badge {% if metodo.mostrar_na_loja %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ metodo.mostrar_na_loja|yesno:"Sim,Não" }}
+                                </span>
+                            </td>
                             <td class="text-end pe-3">
                                 <div class="btn-group">
+                                    <a href="{% url 'administracao:metodo_pagamento_detalhe' metodo.pk %}"
+                                       class="btn btn-sm btn-outline-primary"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <a href="{% url 'administracao:metodo_pagamento_editar' metodo.pk %}" 
                                        class="btn btn-sm btn-outline-success"
                                        data-bs-toggle="tooltip"
@@ -113,14 +136,14 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <div class="text-muted">
                                     <i class="fas fa-credit-card fa-2x mb-3"></i>
                                     <p>
-                                        {% if search_query %}
-                                            Nenhum método de pagamento encontrado para "{{ search_query }}".
-                                            <a href="{% url 'pagamentos:metodo_pagamento_lista' %}" class="btn btn-sm btn-outline-secondary ml-2">
-                                                Limpar pesquisa
+                                        {% if search_query or tipo_filter %}
+                                            Nenhum método de pagamento encontrado com os filtros aplicados.
+                                            <a href="{% url 'administracao:metodo_pagamento_lista' %}" class="btn btn-sm btn-outline-secondary ms-2">
+                                                Limpar filtros
                                             </a>
                                         {% else %}
                                             Nenhum método de pagamento cadastrado.
@@ -142,7 +165,7 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                <a class="page-link text-success" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}">
                     <i class="fas fa-chevron-left"></i>
                 </a>
             </li>
@@ -155,14 +178,14 @@
             </li>
             {% else %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                <a class="page-link text-success" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}">{{ num }}</a>
             </li>
             {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                <a class="page-link text-success" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}">
                     <i class="fas fa-chevron-right"></i>
                 </a>
             </li>
@@ -172,10 +195,8 @@
     {% endif %}
 </div>
 
-<!-- Modal Adicionar Método de Pagamento -->
+<!-- Modais -->
 {% include 'administracao/pagamentos/adicionarMetodoPagamentoModal.html' %}
-
-<!-- Modal Remover Método de Pagamento -->
 {% include 'administracao/pagamentos/removerMetodoPagamentoModal.html' %}
 
 {% endblock %}
@@ -193,5 +214,32 @@ function confirmarRemocao(nome, url) {
     // Abre o modal
     new bootstrap.Modal(document.getElementById('modalRemover')).show();
 }
+
+// Mostrar/esconder campos de acordo com o tipo de pagamento selecionado
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('id_tipo')) {
+        const tipoSelect = document.getElementById('id_tipo');
+        
+        function toggleBancoFields() {
+            const tipo = tipoSelect.value;
+            const bancarioFields = document.querySelectorAll('.bancario-field');
+            
+            if (tipo === 'transferencia_bancaria' || tipo === 'referencia') {
+                bancarioFields.forEach(field => {
+                    field.style.display = 'block';
+                });
+            } else {
+                bancarioFields.forEach(field => {
+                    field.style.display = 'none';
+                });
+            }
+        }
+        
+        tipoSelect.addEventListener('change', toggleBancoFields);
+        
+        // Executa na carga inicial
+        toggleBancoFields();
+    }
+});
 </script>
 {% endblock %}

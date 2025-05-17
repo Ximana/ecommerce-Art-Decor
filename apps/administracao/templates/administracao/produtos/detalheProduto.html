@@ -70,6 +70,47 @@
     .stock-badge {
         font-size: 0.9rem;
     }
+
+    /* Estilos para Abas de Avaliações e Visitas */
+    .review-card {
+        transition: all 0.2s ease;
+    }
+
+    .review-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .rating-stars {
+        color: #ffc107;
+        letter-spacing: 2px;
+    }
+
+    .user-badge {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 1rem;
+    }
+
+    .chart-container {
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        padding: 1rem;
+    }
+
+    .visit-row:hover {
+        background-color: #f8f9fa;
+    }
+
+    .visit-info {
+        font-size: 0.85rem;
+    }
+
+    .truncate-user-agent {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
 </style>
 {% endblock %}
 
@@ -112,7 +153,7 @@
         </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- Lista de Tabs -->
     <ul class="nav nav-tabs border-0 mb-4" id="productTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="details-tab" data-bs-toggle="tab" 
@@ -132,10 +173,22 @@
                 <i class="fas fa-box-open me-2"></i>Estoque
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" 
+                    data-bs-target="#reviews" type="button" role="tab">
+                <i class="fas fa-star me-2"></i>Avaliações
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="visits-tab" data-bs-toggle="tab" 
+                    data-bs-target="#visits" type="button" role="tab">
+                <i class="fas fa-eye me-2"></i>Visitas
+            </button>
+        </li>
     </ul>
 
     <div class="tab-content" id="productTabsContent">
-        <!-- Product Details -->
+        <!-- Detalhes do Producto -->
         <div class="tab-pane fade show active" id="details" role="tabpanel">
             <div class="product-card p-4">
                 <div class="row g-4">
@@ -178,7 +231,7 @@
             </div>
         </div>
 
-        <!-- Product Images -->
+        <!-- Tab Imagens Producto -->
 <div class="tab-pane fade" id="images" role="tabpanel">
     <div class="product-card p-4 mb-4">
         <h5 class="mb-3">Adicionar Nova Imagem</h5>
@@ -237,103 +290,232 @@
     </div>
 </div>
 
-        <!-- Inventory Tab -->
-<div class="tab-pane fade" id="inventory" role="tabpanel">
-    <!-- Stock Movement Form -->
-    <div class="product-card p-4 mb-4">
-        <h5 class="mb-3">Adicionar Movimento de Estoque</h5>
-        <form method="post">
-            {% csrf_token %}
-            <div class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    {{ estoque_form.quantidade.label_tag }}
-                    {{ estoque_form.quantidade }}
-                </div>
-                <div class="col-md-3">
-                    {{ estoque_form.tipo.label_tag }}
-                    {{ estoque_form.tipo }}
-                </div>
-                <div class="col-md-4">
-                    {{ estoque_form.observacao.label_tag }}
-                    {{ estoque_form.observacao }}
-                </div>
-                <div class="col-md-2 align-self-end">
-                    <button type="submit" name="adicionar_estoque" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i>Adicionar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Existing Stock Details -->
-    <div class="product-card p-4 mb-4">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <div class="info-label">Estoque Atual</div>
-                    <div class="info-value">
-                        {{ produto.estoque }} 
-                        <span class="badge {% if produto.estoque <= produto.estoque_minimo %}bg-danger{% else %}bg-success{% endif %}">
-                            {{ produto.estoque|yesno:"Em Estoque,Sem Estoque" }}
-                        </span>
+        <!-- Tab Movimentacoes de Estoque -->
+    <div class="tab-pane fade" id="inventory" role="tabpanel">
+        <!-- Stock Movement Form -->
+        <div class="product-card p-4 mb-4">
+            <h5 class="mb-3">Adicionar Movimento de Estoque</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        {{ estoque_form.quantidade.label_tag }}
+                        {{ estoque_form.quantidade }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ estoque_form.tipo.label_tag }}
+                        {{ estoque_form.tipo }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ estoque_form.observacao.label_tag }}
+                        {{ estoque_form.observacao }}
+                    </div>
+                    <div class="col-md-2 align-self-end">
+                        <button type="submit" name="adicionar_estoque" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Adicionar
+                        </button>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <div class="info-label">Estoque Mínimo</div>
-                    <div class="info-value">{{ produto.estoque_minimo }}</div>
+            </form>
+        </div>
+
+        <!-- Detalhes do Estoque Existente -->
+        <div class="product-card p-4 mb-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="info-label">Estoque Atual</div>
+                        <div class="info-value">
+                            {{ produto.estoque }} 
+                            <span class="badge {% if produto.estoque <= produto.estoque_minimo %}bg-danger{% else %}bg-success{% endif %}">
+                                {{ produto.estoque|yesno:"Em Estoque,Sem Estoque" }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="info-label">Estoque Mínimo</div>
+                        <div class="info-value">{{ produto.estoque_minimo }}</div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <div class="info-label">Data de Cadastro</div>
-                    <div class="info-value">{{ produto.data_cadastro|date:"d.m.Y H:i" }}</div>
-                </div>
-                <div class="mb-3">
-                    <div class="info-label">Última Atualização</div>
-                    <div class="info-value">{{ produto.ultima_atualizacao|date:"d.m.Y H:i" }}</div>
-                </div>
-                <div class="mb-3">
-                    <div class="info-label">Status</div>
-                    <div class="info-value">
-                        <span class="badge {% if produto.status %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ produto.status|yesno:"Ativo,Inativo" }}
-                        </span>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="info-label">Data de Cadastro</div>
+                        <div class="info-value">{{ produto.data_cadastro|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="info-label">Última Atualização</div>
+                        <div class="info-value">{{ produto.ultima_atualizacao|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            <span class="badge {% if produto.status %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ produto.status|yesno:"Ativo,Inativo" }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Historico do Movimento de Estoque -->
+        <div class="product-card p-4">
+            <h5 class="mb-3">Histórico de Movimentações</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movimento in movimentos_estoque %}
+                        <tr>
+                            <td>{{ movimento.data|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <span class="badge {% if movimento.tipo == 'entrada' %}bg-success{% elif movimento.tipo == 'saida' %}bg-danger{% else %}bg-warning{% endif %}">
+                                    {{ movimento.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>{{ movimento.quantidade }}</td>
+                            <td>{{ movimento.observacao|default:'-' }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                Nenhum movimento de estoque registrado
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- Stock Movement History -->
+    <!-- Avaliações Tab -->
+<div class="tab-pane fade" id="reviews" role="tabpanel">
+    <div class="product-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0"><i class="fas fa-star text-warning me-2"></i>Avaliações do Produto</h5>
+            <div>
+                <span class="badge bg-success">Total: {{ avaliacoes.count }}</span>
+                {% if avaliacoes %}
+                    <span class="ms-2">
+                        <strong class="text-success">
+                            {{ avaliacoes.aggregate.nota__avg|floatformat:1 }}
+                        </strong>
+                        <i class="fas fa-star text-warning"></i>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for avaliacao in avaliacoes %}
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <h6 class="mb-0">{{ avaliacao.usuario.get_full_name|default:avaliacao.usuario.username }}</h6>
+                                <small class="text-muted">{{ avaliacao.data_avaliacao|date:"d/m/Y" }}</small>
+                            </div>
+                            <div>
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avaliacao.nota %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="card-text">{{ avaliacao.comentario|default:"Sem comentário" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="far fa-star text-muted fa-3x mb-3"></i>
+                <p class="text-muted">Este produto ainda não possui avaliações.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<!-- Visitas Tab -->
+<div class="tab-pane fade" id="visits" role="tabpanel">
     <div class="product-card p-4">
-        <h5 class="mb-3">Histórico de Movimentações</h5>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0"><i class="fas fa-eye text-primary me-2"></i>Histórico de Visitas</h5>
+            <span class="badge bg-primary">Total: {{ produto.visitas.count }}</span>
+        </div>
+
+        <!-- Gráfico de visitas (placeholder) -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-3">Visitas nos últimos 7 dias</h6>
+                <div class="chart-container" style="height: 200px; background-color: #f8f9fa; border-radius: 0.5rem;">
+                    <!-- Aqui poderia ser inserido um gráfico com JavaScript/Chart.js -->
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <p class="text-muted">Gráfico de visitas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de visitas -->
         <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-hover">
+                <thead class="table-light">
                     <tr>
-                        <th>Data</th>
-                        <th>Tipo</th>
-                        <th>Quantidade</th>
-                        <th>Observação</th>
+                        <th>Data e Hora</th>
+                        <th>Usuário</th>
+                        <th>Endereço IP</th>
+                        <th>Dispositivo</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for movimento in movimentos_estoque %}
+                    {% for visita in visitas %}
                     <tr>
-                        <td>{{ movimento.data|date:"d.m.Y H:i" }}</td>
+                        <td>{{ visita.data_visita|date:"d/m/Y H:i" }}</td>
                         <td>
-                            <span class="badge {% if movimento.tipo == 'entrada' %}bg-success{% elif movimento.tipo == 'saida' %}bg-danger{% else %}bg-warning{% endif %}">
-                                {{ movimento.get_tipo_display }}
-                            </span>
+                            {% if visita.usuario %}
+                                <span class="badge bg-info text-dark">
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ visita.usuario.username }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-user-secret me-1"></i>
+                                    Anônimo
+                                </span>
+                            {% endif %}
                         </td>
-                        <td>{{ movimento.quantidade }}</td>
-                        <td>{{ movimento.observacao|default:'-' }}</td>
+                        <td>{{ visita.ip|default:"N/A" }}</td>
+                        <td>
+                            <small class="text-truncate d-inline-block" style="max-width: 200px;">
+                                {% if "Mobile" in visita.user_agent %}
+                                    <i class="fas fa-mobile-alt me-1 text-secondary"></i>
+                                {% elif "Tablet" in visita.user_agent %}
+                                    <i class="fas fa-tablet-alt me-1 text-secondary"></i>
+                                {% else %}
+                                    <i class="fas fa-desktop me-1 text-secondary"></i>
+                                {% endif %}
+                                {{ visita.user_agent|truncatechars:40|default:"N/A" }}
+                            </small>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            Nenhum movimento de estoque registrado
+                        <td colspan="4" class="text-center text-muted py-4">
+                            Nenhuma visita registrada para este produto
                         </td>
                     </tr>
                     {% endfor %}
@@ -343,11 +525,13 @@
     </div>
 </div>
 
+
+
         
     </div>
 </div>
 
-<!-- Product Edit Modal -->
+<!-- Modal Editar Produto -->
 {% include 'administracao/produtos/editarModal.html' %}
 
 {% endblock %}

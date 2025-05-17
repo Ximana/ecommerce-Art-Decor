@@ -1,3 +1,4 @@
+{# adicionarMetodoPagamentoModal.html #}
 <div
   class="modal fade"
   id="modalAdicionarMetodoPagamento"
@@ -8,28 +9,29 @@
 >
   <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header bg-success text-white">
         <h5 class="modal-title" id="modalAdicionarMetodoPagamentoLabel">
-          Adicionar Novo Método de Pagamento
+          <i class="fas fa-plus-circle me-2"></i>Adicionar Novo Método de Pagamento
         </h5>
         <button
           type="button"
-          class="btn-close"
+          class="btn-close btn-close-white"
           data-bs-dismiss="modal"
-          aria-label="Close"
+          aria-label="Fechar"
         ></button>
       </div>
       <div class="modal-body">
-        <form class="row" method="POST">
+        <form class="row g-3" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           
+          <!-- Informações Básicas -->
           <div class="col-md-6">
             <div class="form-group mb-3">
-              <label for="nome">Nome do Método</label>
+              <label for="id_nome">Nome do Método*</label>
               <input
                 type="text"
                 class="form-control {% if form.nome.errors %}is-invalid{% endif %}"
-                id="nome"
+                id="id_nome"
                 name="nome"
                 value="{{ form.nome.value|default:'' }}"
                 required
@@ -37,31 +39,163 @@
               {% if form.nome.errors %}
                 <div class="invalid-feedback">{{ form.nome.errors|first }}</div>
               {% endif %}
+              <small class="form-text text-muted">Nome visível para os clientes</small>
             </div>
             
             <div class="form-group mb-3">
-              <label for="taxa">Taxa (%)</label>
+              <label for="id_tipo">Tipo de Pagamento*</label>
+              <select
+                class="form-select {% if form.tipo.errors %}is-invalid{% endif %}"
+                id="id_tipo"
+                name="tipo"
+                required
+              >
+                {% for value, label in form.fields.tipo.choices %}
+                  <option value="{{ value }}" {% if form.tipo.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% if form.tipo.errors %}
+                <div class="invalid-feedback">{{ form.tipo.errors|first }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="bancario-field form-group mb-3">
+              <label for="id_banco">Banco</label>
+              <select
+                class="form-select {% if form.banco.errors %}is-invalid{% endif %}"
+                id="id_banco"
+                name="banco"
+              >
+                {% for value, label in form.fields.banco.choices %}
+                  <option value="{{ value }}" {% if form.banco.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% if form.banco.errors %}
+                <div class="invalid-feedback">{{ form.banco.errors|first }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="bancario-field form-group mb-3">
+              <label for="id_titular_conta">Titular da Conta</label>
+              <input
+                type="text"
+                class="form-control {% if form.titular_conta.errors %}is-invalid{% endif %}"
+                id="id_titular_conta"
+                name="titular_conta"
+                value="{{ form.titular_conta.value|default:'' }}"
+              />
+              {% if form.titular_conta.errors %}
+                <div class="invalid-feedback">{{ form.titular_conta.errors|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="bancario-field form-group mb-3">
+              <label for="id_numero_conta">Número da Conta</label>
+              <input
+                type="text"
+                class="form-control {% if form.numero_conta.errors %}is-invalid{% endif %}"
+                id="id_numero_conta"
+                name="numero_conta"
+                value="{{ form.numero_conta.value|default:'' }}"
+              />
+              {% if form.numero_conta.errors %}
+                <div class="invalid-feedback">{{ form.numero_conta.errors|first }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="bancario-field form-group mb-3">
+              <label for="id_iban">IBAN</label>
+              <input
+                type="text"
+                class="form-control {% if form.iban.errors %}is-invalid{% endif %}"
+                id="id_iban"
+                name="iban"
+                value="{{ form.iban.value|default:'' }}"
+              />
+              {% if form.iban.errors %}
+                <div class="invalid-feedback">{{ form.iban.errors|first }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-group mb-3">
+              <label for="id_taxa">Taxa (%)</label>
               <input
                 type="number"
                 step="0.01"
                 class="form-control {% if form.taxa.errors %}is-invalid{% endif %}"
-                id="taxa"
+                id="id_taxa"
                 name="taxa"
                 value="{{ form.taxa.value|default:'0.00' }}"
               />
               {% if form.taxa.errors %}
                 <div class="invalid-feedback">{{ form.taxa.errors|first }}</div>
               {% endif %}
+              <small class="form-text text-muted">Percentagem cobrada pelo método de pagamento</small>
+            </div>
+            
+            <div class="form-group mb-3">
+              <label for="id_taxa_fixa">Taxa Fixa (AOA)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control {% if form.taxa_fixa.errors %}is-invalid{% endif %}"
+                id="id_taxa_fixa"
+                name="taxa_fixa"
+                value="{{ form.taxa_fixa.value|default:'0.00' }}"
+              />
+              {% if form.taxa_fixa.errors %}
+                <div class="invalid-feedback">{{ form.taxa_fixa.errors|first }}</div>
+              {% endif %}
+              <small class="form-text text-muted">Valor fixo cobrado por transação</small>
             </div>
           </div>
           
-          <div class="col-md-6">
+          <!-- Limites e Prazos -->
+          <div class="col-md-4">
             <div class="form-group mb-3">
-              <label for="prazo_processamento">Prazo de Processamento (dias)</label>
+              <label for="id_valor_minimo">Valor Mínimo (AOA)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control {% if form.valor_minimo.errors %}is-invalid{% endif %}"
+                id="id_valor_minimo"
+                name="valor_minimo"
+                value="{{ form.valor_minimo.value|default:'0.00' }}"
+              />
+              {% if form.valor_minimo.errors %}
+                <div class="invalid-feedback">{{ form.valor_minimo.errors|first }}</div>
+              {% endif %}
+              <small class="form-text text-muted">0 = sem valor mínimo</small>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-group mb-3">
+              <label for="id_valor_maximo">Valor Máximo (AOA)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control {% if form.valor_maximo.errors %}is-invalid{% endif %}"
+                id="id_valor_maximo"
+                name="valor_maximo"
+                value="{{ form.valor_maximo.value|default:'0.00' }}"
+              />
+              {% if form.valor_maximo.errors %}
+                <div class="invalid-feedback">{{ form.valor_maximo.errors|first }}</div>
+              {% endif %}
+              <small class="form-text text-muted">0 = sem valor máximo</small>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-group mb-3">
+              <label for="id_prazo_processamento">Prazo de Processamento (dias)</label>
               <input
                 type="number"
                 class="form-control {% if form.prazo_processamento.errors %}is-invalid{% endif %}"
-                id="prazo_processamento"
+                id="id_prazo_processamento"
                 name="prazo_processamento"
                 value="{{ form.prazo_processamento.value|default:'0' }}"
               />
@@ -69,30 +203,15 @@
                 <div class="invalid-feedback">{{ form.prazo_processamento.errors|first }}</div>
               {% endif %}
             </div>
-            
-            <div class="form-group mb-3">
-              <div class="form-check">
-                <input 
-                  type="checkbox" 
-                  class="form-check-input {% if form.status.errors %}is-invalid{% endif %}"
-                  id="status" 
-                  name="status"
-                  {% if form.status.value is not False %}checked{% endif %}
-                >
-                <label class="form-check-label" for="status">Método Ativo</label>
-                {% if form.status.errors %}
-                  <div class="invalid-feedback">{{ form.status.errors|first }}</div>
-                {% endif %}
-              </div>
-            </div>
           </div>
-
-          <div class="col-md-12">
+          
+          <!-- Descrições -->
+          <div class="col-md-6">
             <div class="form-group mb-3">
-              <label for="descricao">Descrição</label>
+              <label for="id_descricao">Descrição</label>
               <textarea
                 class="form-control {% if form.descricao.errors %}is-invalid{% endif %}"
-                id="descricao"
+                id="id_descricao"
                 name="descricao"
                 rows="3"
               >{{ form.descricao.value|default:'' }}</textarea>
@@ -101,17 +220,96 @@
               {% endif %}
             </div>
           </div>
-
-          <div class="modal-footer mt-3">
+          
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label for="id_instrucoes">Instruções de Pagamento</label>
+              <textarea
+                class="form-control {% if form.instrucoes.errors %}is-invalid{% endif %}"
+                id="id_instrucoes"
+                name="instrucoes"
+                rows="3"
+              >{{ form.instrucoes.value|default:'' }}</textarea>
+              {% if form.instrucoes.errors %}
+                <div class="invalid-feedback">{{ form.instrucoes.errors|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Opções Adicionais -->
+          <div class="col-md-4">
+            <div class="form-group mb-3">
+              <label for="id_ordem">Ordem de Exibição</label>
+              <input
+                type="number"
+                class="form-control {% if form.ordem.errors %}is-invalid{% endif %}"
+                id="id_ordem"
+                name="ordem"
+                value="{{ form.ordem.value|default:'0' }}"
+              />
+              {% if form.ordem.errors %}
+                <div class="invalid-feedback">{{ form.ordem.errors|first }}</div>
+              {% endif %}
+              <small class="form-text text-muted">Menor número aparece primeiro</small>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-group mb-3">
+              <label for="id_imagem">Imagem / Logo</label>
+              <input
+                type="file"
+                class="form-control {% if form.imagem.errors %}is-invalid{% endif %}"
+                id="id_imagem"
+                name="imagem"
+                accept="image/*"
+              />
+              {% if form.imagem.errors %}
+                <div class="invalid-feedback">{{ form.imagem.errors|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-check mt-4">
+              <input 
+                type="checkbox" 
+                class="form-check-input {% if form.status.errors %}is-invalid{% endif %}"
+                id="id_status" 
+                name="status"
+                {% if form.status.value is not False %}checked{% endif %}
+              >
+              <label class="form-check-label" for="id_status">Método Ativo</label>
+              {% if form.status.errors %}
+                <div class="invalid-feedback">{{ form.status.errors|first }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-check mt-3">
+              <input 
+                type="checkbox" 
+                class="form-check-input {% if form.mostrar_na_loja.errors %}is-invalid{% endif %}"
+                id="id_mostrar_na_loja" 
+                name="mostrar_na_loja"
+                {% if form.mostrar_na_loja.value is not False %}checked{% endif %}
+              >
+              <label class="form-check-label" for="id_mostrar_na_loja">Mostrar na Loja</label>
+              {% if form.mostrar_na_loja.errors %}
+                <div class="invalid-feedback">{{ form.mostrar_na_loja.errors|first }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary btn-sm"
+              class="btn btn-outline-secondary"
               data-bs-dismiss="modal"
             >
-              Fechar
+              <i class="fas fa-times me-1"></i>Cancelar
             </button>
-            <button type="submit" class="btn btn-success btn-sm">
-              Adicionar Método
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save me-1"></i>Salvar Método de Pagamento
             </button>
           </div>
         </form>

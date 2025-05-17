@@ -106,7 +106,7 @@
 
 {% block banner %}
 <!-- Banner -->
-<div class="container-fluid shop-header">
+<div class="container-fluid cabecalho-pagina">
     <div class="container">
         <h1 class="text-center">Finalizar Compra</h1>
         <p class="text-center">Início - Carrinho - Checkout</p>
@@ -211,15 +211,72 @@
                                 <div class="payment-method-card form-check {% if forloop.first %}selected{% endif %}">
                                     <input class="form-check-input" type="radio" name="metodo_pagamento" 
                                            id="pagamento_{{ metodo.id }}" value="{{ metodo.id }}"
-                                           {% if forloop.first %}checked{% endif %} required>
+                                           {% if forloop.first %}checked{% endif %} required
+                                           data-taxa="{{ metodo.taxa }}" data-taxa-fixa="{{ metodo.taxa_fixa }}">
                                     <label class="form-check-label" for="pagamento_{{ metodo.id }}">
-                                        <strong>{{ metodo.nome }}</strong>
-                                        {% if metodo.descricao %}
-                                            <p class="mb-0 text-muted">{{ metodo.descricao }}</p>
-                                        {% endif %}
-                                        {% if metodo.prazo_processamento %}
-                                            <small class="text-muted">Prazo de processamento: {{ metodo.prazo_processamento }} dias</small>
-                                        {% endif %}
+                                        <div class="d-flex align-items-center">
+                                            {% if metodo.imagem %}
+                                                <img src="{{ metodo.imagem.url }}" alt="{{ metodo.nome }}" class="payment-icon mr-2" style="max-height: 30px; max-width: 50px;">
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ metodo.nome }}</strong>
+                                                {% if metodo.tipo %}
+                                                    <span class="badge badge-light ml-2">{{ metodo.get_tipo_display }}</span>
+                                                {% endif %}
+                                                {% if metodo.descricao %}
+                                                    <p class="mb-0 text-muted">{{ metodo.descricao }}</p>
+                                                {% endif %}
+                                                
+                                                <!-- Detalhes do método de pagamento -->
+                                                {% if metodo.taxa > 0 or metodo.taxa_fixa > 0 %}
+                                                    <div class="mt-1 small text-muted">
+                                                        Taxa: 
+                                                        {% if metodo.taxa > 0 %}{{ metodo.taxa }}%{% endif %}
+                                                        {% if metodo.taxa > 0 and metodo.taxa_fixa > 0 %} + {% endif %}
+                                                        {% if metodo.taxa_fixa > 0 %}kz {{ metodo.taxa_fixa|floatformat:2 }}{% endif %}
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                {% if metodo.valor_minimo > 0 or metodo.valor_maximo > 0 %}
+                                                    <div class="mt-1 small text-muted">
+                                                        {% if metodo.valor_minimo > 0 %}Mínimo: kz {{ metodo.valor_minimo|floatformat:2 }}{% endif %}
+                                                        {% if metodo.valor_minimo > 0 and metodo.valor_maximo > 0 %} | {% endif %}
+                                                        {% if metodo.valor_maximo > 0 %}Máximo: kz {{ metodo.valor_maximo|floatformat:2 }}{% endif %}
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                {% if metodo.prazo_processamento %}
+                                                    <div class="mt-1 small text-muted">
+                                                        Prazo de processamento: {{ metodo.prazo_processamento }} dia(s)
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                <!-- Detalhes bancários para transferências -->
+                                                {% if metodo.has_bank_details %}
+                                                    <div class="payment-bank-details mt-2 p-2 bg-light rounded">
+                                                        <p class="mb-0"><strong>{{ metodo.get_banco_display }}</strong></p>
+                                                        {% if metodo.titular_conta %}
+                                                            <p class="mb-0 small">Titular: {{ metodo.titular_conta }}</p>
+                                                        {% endif %}
+                                                        {% if metodo.numero_conta %}
+                                                            <p class="mb-0 small">Conta: {{ metodo.numero_conta }}</p>
+                                                        {% endif %}
+                                                        {% if metodo.iban %}
+                                                            <p class="mb-0 small">IBAN: {{ metodo.iban }}</p>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                {% if metodo.instrucoes %}
+                                                    <p class="collapse payment-instructions mt-2 small" id="instrucoes-{{ metodo.id }}">
+                                                        {{ metodo.instrucoes|linebreaks }}
+                                                    </p>
+                                                    <a class="small" data-toggle="collapse" href="#instrucoes-{{ metodo.id }}" role="button">
+                                                        Ver instruções
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </label>
                                 </div>
                             {% endfor %}
@@ -247,7 +304,7 @@
                                 {% if item.produto.imagens.first %}
                                     <img src="{{ item.produto.imagens.first.url_imagem.url }}" alt="{{ item.produto.nome }}">
                                 {% else %}
-                                    <img src="{% static 'img/no-image.png' %}" alt="{{ item.produto.nome }}">
+                                    <img src="/media/produtos/produto-sem-imagem.png" alt="{{ item.produto.nome }}">
                                 {% endif %}
                                 
                                 <div class="product-details">
@@ -275,6 +332,10 @@
                         <div class="order-item">
                             <span>Frete</span>
                             <span id="valor-frete">kz {{ frete|floatformat:2 }}</span>
+                        </div>
+                        <div class="order-item">
+                            <span>Taxa de pagamento</span>
+                            <span id="taxa-pagamento">kz 0.00</span>
                         </div>
                         {% if valor_desconto %}
                             <div class="order-item">
@@ -324,6 +385,9 @@
             $('.payment-method-card').removeClass('selected');
             $(this).addClass('selected');
             $(this).find('input').prop('checked', true);
+            
+            // Atualizar taxas do método de pagamento
+            atualizarTaxaPagamento();
         });
         
         // Função para atualizar o frete
@@ -340,7 +404,8 @@
                 },
                 success: function(data) {
                     $('#valor-frete').text('kz ' + data.valor_frete.toFixed(2));
-                    $('#valor-total').text('kz ' + data.total.toFixed(2));
+                    // Atualizar o total sem perder a taxa de pagamento
+                    atualizarTotal(data.valor_frete, getCurrentTaxaPagamento());
                 },
                 error: function(error) {
                     console.log("Erro ao calcular frete:", error);
@@ -348,8 +413,50 @@
             });
         }
         
-        // Atualizar frete inicialmente
+        // Função para atualizar taxa de pagamento
+        function atualizarTaxaPagamento() {
+            const metodoPagamento = $('input[name="metodo_pagamento"]:checked');
+            const taxaPercentual = parseFloat(metodoPagamento.data('taxa')) || 0;
+            const taxaFixa = parseFloat(metodoPagamento.data('taxa-fixa')) || 0;
+            const subtotal = {{ subtotal }};
+            
+            // Calcular taxa baseada no subtotal
+            const taxaValor = (subtotal * taxaPercentual / 100) + taxaFixa;
+            
+            // Atualizar o campo de taxa de pagamento
+            $('#taxa-pagamento').text('kz ' + taxaValor.toFixed(2));
+            
+            // Atualizar o total
+            const valorFrete = getCurrentValorFrete();
+            atualizarTotal(valorFrete, taxaValor);
+            
+            return taxaValor;
+        }
+        
+        // Obter o valor atual do frete
+        function getCurrentValorFrete() {
+            const freteText = $('#valor-frete').text().replace('kz ', '');
+            return parseFloat(freteText) || 0;
+        }
+        
+        // Obter o valor atual da taxa de pagamento
+        function getCurrentTaxaPagamento() {
+            const taxaText = $('#taxa-pagamento').text().replace('kz ', '');
+            return parseFloat(taxaText) || 0;
+        }
+        
+        // Atualizar o valor total
+        function atualizarTotal(valorFrete, taxaPagamento) {
+            const subtotal = {{ subtotal }};
+            const desconto = {{ valor_desconto|default:0 }};
+            const total = subtotal + valorFrete + taxaPagamento - desconto;
+            
+            $('#valor-total').text('kz ' + total.toFixed(2));
+        }
+        
+        // Atualizar frete e taxa inicialmente
         atualizarFrete();
+        atualizarTaxaPagamento();
     });
 </script>
 {% endblock %}

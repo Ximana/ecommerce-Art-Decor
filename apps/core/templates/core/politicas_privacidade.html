@@ -1,0 +1,398 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Políticas de Privacidade - Art & Decor{% endblock %}
+
+{% block arquivos_css %}
+<style>
+    .privacy-banner {
+        background-color: #f8f9fa;
+        padding: 50px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .privacy-banner h1 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .privacy-banner p {
+        color: #777;
+    }
+    
+    .privacy-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 50px;
+    }
+    
+    .privacy-section {
+        margin-bottom: 30px;
+    }
+    
+    .privacy-section h2 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .privacy-section h3 {
+        color: #555;
+        font-weight: 500;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .privacy-section p {
+        color: #666;
+        line-height: 1.7;
+        margin-bottom: 15px;
+    }
+    
+    .privacy-section ul {
+        margin-bottom: 20px;
+        padding-left: 20px;
+    }
+    
+    .privacy-section ul li {
+        margin-bottom: 10px;
+        color: #666;
+    }
+    
+    .privacy-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        height: 70px;
+        background-color: #f0f7ff;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+    }
+    
+    .privacy-icon i {
+        font-size: 28px;
+        color: #007bff;
+    }
+    
+    .effective-date {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 30px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .effective-date p {
+        margin-bottom: 0;
+        color: #555;
+    }
+    
+    .contact-info {
+        background-color: #f0f7ff;
+        padding: 25px;
+        border-radius: 5px;
+        margin-top: 30px;
+    }
+    
+    .contact-info h4 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .contact-info p {
+        margin-bottom: 5px;
+    }
+    
+    .highlight-box {
+        background-color: #fff8e1;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+    
+    .highlight-box p {
+        margin-bottom: 0;
+        color: #856404;
+    }
+    
+    .table-of-contents {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 30px;
+    }
+    
+    .table-of-contents h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .table-of-contents ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .table-of-contents ul li {
+        margin-bottom: 8px;
+    }
+    
+    .table-of-contents ul li a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .table-of-contents ul li a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+    
+    .consent-section {
+        background-color: #e8f4fd;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 30px 0;
+    }
+    
+    @media (max-width: 767px) {
+        .privacy-container {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block banner %}
+<div class="container-fluid privacy-banner">
+    <div class="container">
+        <div class="privacy-icon">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        <h1>Políticas de Privacidade</h1>
+        <p>Saiba como tratamos e protegemos os seus dados</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="privacy-container">
+        <div class="table-of-contents">
+            <h3>Índice</h3>
+            <ul>
+                <li><a href="#introducao">1. Introdução</a></li>
+                <li><a href="#informacoes-coletadas">2. Informações que coletamos</a></li>
+                <li><a href="#uso-informacoes">3. Como usamos suas informações</a></li>
+                <li><a href="#compartilhamento">4. Compartilhamento de informações</a></li>
+                <li><a href="#cookies">5. Cookies e tecnologias semelhantes</a></li>
+                <li><a href="#seguranca">6. Segurança de dados</a></li>
+                <li><a href="#direitos">7. Seus direitos e escolhas</a></li>
+                <li><a href="#retencao">8. Retenção de dados</a></li>
+                <li><a href="#criancas">9. Privacidade das crianças</a></li>
+                <li><a href="#alteracoes">10. Alterações nesta política</a></li>
+                <li><a href="#contato">11. Como entrar em contato</a></li>
+            </ul>
+        </div>
+
+        <div class="privacy-section" id="introducao">
+            <h2>1. Introdução</h2>
+            <p>Bem-vindo às Políticas de Privacidade da Art & Decor. Na Art & Decor, valorizamos a sua privacidade e estamos comprometidos em proteger os seus dados pessoais. Esta política de privacidade explica como coletamos, usamos, compartilhamos e protegemos suas informações quando você utiliza nosso site e serviços.</p>
+            <p>Ao utilizar nosso site ou fornecer seus dados pessoais, você concorda com as práticas descritas nesta política. Pedimos que leia com atenção este documento para entender nossos procedimentos em relação aos seus dados pessoais e como os tratamos.</p>
+            
+            <div class="effective-date">
+                <p><strong>Data de vigência:</strong> 22 de Abril de 2025</p>
+            </div>
+        </div>
+
+        <div class="privacy-section" id="informacoes-coletadas">
+            <h2>2. Informações que coletamos</h2>
+            <p>Podemos coletar diferentes tipos de informações quando você utiliza nosso site ou serviços:</p>
+            
+            <h3>2.1. Informações que você nos fornece</h3>
+            <ul>
+                <li><strong>Informações de cadastro:</strong> Nome completo, endereço de e-mail, número de telefone, nome de usuário e senha quando você cria uma conta.</li>
+                <li><strong>Informações de identificação:</strong> Número do BI (Bilhete de Identidade) e data de nascimento.</li>
+                <li><strong>Informações de perfil:</strong> Foto de perfil e preferências.</li>
+                <li><strong>Informações de endereço:</strong> Endereço de entrega, cidade, província e código postal para processar entregas.</li>
+                <li><strong>Informações de pagamento:</strong> Detalhes do cartão de crédito/débito ou outras informações financeiras necessárias para processar pagamentos.</li>
+                <li><strong>Comunicações:</strong> Mensagens que você nos envia através de formulários de contato, e-mails ou outras formas de comunicação.</li>
+            </ul>
+            
+            <h3>2.2. Informações coletadas automaticamente</h3>
+            <ul>
+                <li><strong>Informações do dispositivo:</strong> Tipo de dispositivo, sistema operacional, navegador, endereço IP e identificadores de dispositivo.</li>
+                <li><strong>Informações de uso:</strong> Páginas visitadas, tempo gasto no site, padrões de cliques, produtos visualizados ou adicionados ao carrinho.</li>
+                <li><strong>Informações de localização:</strong> Sua localização aproximada baseada no seu endereço IP.</li>
+                <li><strong>Cookies e tecnologias semelhantes:</strong> Usamos cookies e tecnologias semelhantes para coletar informações sobre sua navegação e preferências.</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p><i class="fas fa-info-circle me-2"></i> Coletamos apenas as informações necessárias para fornecer nossos serviços e melhorar sua experiência em nossa plataforma.</p>
+            </div>
+        </div>
+
+        <div class="privacy-section" id="uso-informacoes">
+            <h2>3. Como usamos suas informações</h2>
+            <p>Utilizamos suas informações pessoais para os seguintes fins:</p>
+            
+            <ul>
+                <li><strong>Fornecer nossos serviços:</strong> Processar pedidos, entregar produtos, gerenciar sua conta e fornecer suporte ao cliente.</li>
+                <li><strong>Melhorar nossos serviços:</strong> Analisar como nosso site é usado, identificar tendências de uso e aprimorar nossos produtos e serviços.</li>
+                <li><strong>Personalização:</strong> Personalizar sua experiência e oferecer recomendações de produtos com base nos seus interesses e histórico de compras.</li>
+                <li><strong>Comunicação:</strong> Enviar atualizações sobre pedidos, notificações sobre alterações em nossos termos ou políticas, e responder às suas solicitações.</li>
+                <li><strong>Marketing:</strong> Com seu consentimento, enviar comunicações de marketing sobre novos produtos, promoções ou ofertas que possam ser de seu interesse.</li>
+                <li><strong>Segurança:</strong> Detectar e prevenir fraudes, proteger nosso site e garantir a segurança dos usuários.</li>
+                <li><strong>Cumprimento legal:</strong> Cumprir obrigações legais e regulatórias aplicáveis.</li>
+            </ul>
+        </div>
+
+        <div class="privacy-section" id="compartilhamento">
+            <h2>4. Compartilhamento de informações</h2>
+            <p>Podemos compartilhar suas informações pessoais com os seguintes tipos de terceiros:</p>
+            
+            <ul>
+                <li><strong>Prestadores de serviços:</strong> Empresas que nos ajudam a fornecer serviços, como processamento de pagamentos, entrega de produtos, hospedagem de sites e análise de dados.</li>
+                <li><strong>Parceiros de negócios:</strong> Empresas com as quais colaboramos para oferecer produtos ou serviços conjuntos.</li>
+                <li><strong>Autoridades legais:</strong> Quando exigido por lei, ordem judicial ou processo legal.</li>
+                <li><strong>Novos proprietários:</strong> Em caso de fusão, aquisição ou venda de ativos, suas informações podem ser transferidas como parte dos ativos da empresa.</li>
+            </ul>
+            
+            <p>Não vendemos suas informações pessoais a terceiros para fins de marketing direto sem o seu consentimento explícito.</p>
+        </div>
+
+        <div class="privacy-section" id="cookies">
+            <h2>5. Cookies e tecnologias semelhantes</h2>
+            <p>Utilizamos cookies e tecnologias semelhantes para coletar informações sobre suas atividades em nosso site. Cookies são pequenos arquivos de texto armazenados em seu dispositivo quando você visita um site.</p>
+            
+            <h3>5.1. Tipos de cookies que utilizamos</h3>
+            <ul>
+                <li><strong>Cookies essenciais:</strong> Necessários para o funcionamento básico do site, como autenticação e segurança.</li>
+                <li><strong>Cookies de preferências:</strong> Permitem que o site lembre suas escolhas e preferências.</li>
+                <li><strong>Cookies analíticos:</strong> Ajudam-nos a entender como os visitantes interagem com nosso site.</li>
+                <li><strong>Cookies de marketing:</strong> Usados para rastrear visitantes em sites e exibir anúncios relevantes.</li>
+            </ul>
+            
+            <h3>5.2. Gerenciamento de cookies</h3>
+            <p>Você pode gerenciar suas preferências de cookies através das configurações do seu navegador. A maioria dos navegadores permite que você recuse ou aceite cookies, exclua cookies existentes ou seja alertado quando novos cookies estão sendo enviados ao seu dispositivo.</p>
+            
+            <div class="highlight-box">
+                <p><i class="fas fa-cookie-bite me-2"></i> Observe que, se você optar por desativar cookies, algumas partes do nosso site podem não funcionar corretamente.</p>
+            </div>
+        </div>
+
+        <div class="privacy-section" id="seguranca">
+            <h2>6. Segurança de dados</h2>
+            <p>A Art & Decor implementa medidas de segurança técnicas, administrativas e físicas para proteger suas informações pessoais contra acesso não autorizado, uso indevido, alteração ou destruição. Algumas das medidas que adotamos incluem:</p>
+            
+            <ul>
+                <li>Criptografia de dados sensíveis em trânsito e em repouso.</li>
+                <li>Acesso restrito a informações pessoais apenas a funcionários autorizados.</li>
+                <li>Revisões regulares de nossas práticas de coleta, armazenamento e processamento de dados.</li>
+                <li>Firewalls, sistemas de detecção de intrusão e outras tecnologias de segurança.</li>
+            </ul>
+            
+            <p>No entanto, nenhum método de transmissão pela Internet ou método de armazenamento eletrônico é 100% seguro. Portanto, não podemos garantir sua segurança absoluta.</p>
+        </div>
+
+        <div class="privacy-section" id="direitos">
+            <h2>7. Seus direitos e escolhas</h2>
+            <p>Dependendo da sua localização, você pode ter os seguintes direitos em relação aos seus dados pessoais:</p>
+            
+            <ul>
+                <li><strong>Acesso:</strong> Direito de solicitar uma cópia das informações pessoais que temos sobre você.</li>
+                <li><strong>Retificação:</strong> Direito de corrigir informações incompletas ou imprecisas que temos sobre você.</li>
+                <li><strong>Exclusão:</strong> Direito de solicitar a exclusão de suas informações pessoais em determinadas circunstâncias.</li>
+                <li><strong>Restrição de processamento:</strong> Direito de solicitar a restrição do processamento de suas informações pessoais.</li>
+                <li><strong>Portabilidade de dados:</strong> Direito de receber seus dados em um formato estruturado e legível por máquina.</li>
+                <li><strong>Oposição:</strong> Direito de se opor ao processamento de suas informações pessoais em determinadas circunstâncias.</li>
+                <li><strong>Retirada de consentimento:</strong> Direito de retirar seu consentimento a qualquer momento.</li>
+            </ul>
+            
+            <p>Para exercer qualquer um desses direitos, entre em contato conosco através das informações fornecidas no final desta política.</p>
+            
+            <div class="consent-section">
+                <h3>Preferências de comunicação</h3>
+                <p>Você pode gerenciar suas preferências de comunicação de marketing a qualquer momento:</p>
+                <ul>
+                    <li>Clicando no link "cancelar inscrição" no rodapé de nossos e-mails.</li>
+                    <li>Atualizando suas preferências na seção "Minha Conta" do nosso site.</li>
+                    <li>Entrando em contato conosco diretamente.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="privacy-section" id="retencao">
+            <h2>8. Retenção de dados</h2>
+            <p>Mantemos suas informações pessoais pelo tempo necessário para cumprir os fins para os quais foram coletadas, incluindo a satisfação de requisitos legais, contábeis ou de relatórios.</p>
+            
+            <p>Para determinar o período apropriado de retenção, consideramos:</p>
+            <ul>
+                <li>A quantidade, natureza e sensibilidade das informações pessoais.</li>
+                <li>O risco potencial de danos pelo uso ou divulgação não autorizados.</li>
+                <li>Os fins para os quais processamos seus dados e se podemos alcançar esses fins por outros meios.</li>
+                <li>Requisitos legais aplicáveis.</li>
+            </ul>
+        </div>
+
+        <div class="privacy-section" id="criancas">
+            <h2>9. Privacidade das crianças</h2>
+            <p>Nosso site não é destinado a crianças menores de 13 anos, e não coletamos intencionalmente informações pessoais de crianças menores de 13 anos. Se você acredita que coletamos informações de uma criança menor de 13 anos, entre em contato conosco imediatamente para que possamos tomar as medidas apropriadas para remover essas informações.</p>
+        </div>
+
+        <div class="privacy-section" id="alteracoes">
+            <h2>10. Alterações nesta política</h2>
+            <p>Podemos atualizar esta política de privacidade periodicamente para refletir alterações em nossas práticas de informação ou obrigações legais. Se fizermos alterações significativas, notificaremos você publicando um aviso em nosso site ou enviando um e-mail, quando apropriado.</p>
+            
+            <p>Recomendamos que você revise esta política periodicamente para estar ciente de como protegemos suas informações.</p>
+        </div>
+
+        <div class="privacy-section" id="contato">
+            <h2>11. Como entrar em contato</h2>
+            <p>Se você tiver dúvidas ou preocupações sobre nossa política de privacidade ou práticas de dados, ou se desejar exercer seus direitos de privacidade, entre em contato conosco:</p>
+            
+            <div class="contact-info">
+                <h4>Art & Decor</h4>
+                <p><i class="fas fa-map-marker-alt me-2"></i> Rua Principal, 123, Luanda, Angola</p>
+                <p><i class="fas fa-envelope me-2"></i> privacidade@artdecor.ao</p>
+                <p><i class="fas fa-phone me-2"></i> +244 923 456 789</p>
+                <p><i class="fas fa-clock me-2"></i> Segunda a Sexta, 9h às 17h</p>
+            </div>
+            
+            <p class="mt-4">Faremos o possível para responder prontamente a todas as solicitações e resolver quaisquer preocupações que você possa ter.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scriptJS %}
+<script>
+    // Script para rolagem suave até as seções ao clicar nos links do índice
+    document.addEventListener('DOMContentLoaded', function() {
+        const links = document.querySelectorAll('.table-of-contents a');
+        
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
