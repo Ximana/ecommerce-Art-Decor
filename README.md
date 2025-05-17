@@ -1,15 +1,12 @@
----
-
-```markdown
-# 🛒 E-commerce Django - Art & Decor
+# E-commerce Django - Art & Decor
 
 Este é um projeto de e-commerce desenvolvido com Django e PostgreSQL. A plataforma permite o cadastro de usuários, gerenciamento de produtos, controle de estoque, promoções, carrinho de compras, pedidos, formas de envio e métodos de pagamento.
 
-## 📌 Visão Geral
+## Visão Geral
 
 Este sistema foi desenvolvido com o objetivo de simular um ambiente real de loja virtual, cobrindo desde o cadastro e visualização de produtos até a finalização do pedido com diferentes formas de pagamento.
 
-## 🧱 Modelo de Dados
+## Modelo de Dados
 
 O modelo relacional foi cuidadosamente desenhado para suportar as principais operações de um e-commerce, incluindo:
 
@@ -22,7 +19,7 @@ O modelo relacional foi cuidadosamente desenhado para suportar as principais ope
 
 Você pode visualizar o modelo relacional completo [aqui](diagrama).
 
-## ⚙️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **Linguagem:** Python 3.x
 - **Framework Web:** Django 4.x
@@ -32,14 +29,14 @@ Você pode visualizar o modelo relacional completo [aqui](diagrama).
 - **Gerenciamento de dependências:** pip + virtualenv
 - **Outros:** Bootstrap 5 (para o front-end), Gunicorn e Nginx (para produção)
 
-## 📁 Estrutura de Diretórios
+## Estrutura de Diretórios
 
 ```
 
 
 ````
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
 - Cadastro, login e autenticação de usuários
 - CRUD de produtos com categorias e marcas
@@ -52,7 +49,7 @@ Você pode visualizar o modelo relacional completo [aqui](diagrama).
 - Emissão de comprovantes e rastreamento de status
 - Cálculo automático de taxas de envio e pagamentos
 
-## 🧪 Como Executar Localmente
+## Como Executar Localmente
 
 1. Clone o repositório:
 
@@ -107,11 +104,11 @@ python manage.py runserver
 
 Acesse o projeto em: [http://localhost:8000](http://localhost:8000)
 
-## 🧾 Diagrama do Banco de Dados
+## Diagrama do Banco de Dados
 
 
 
-## 📦 Requisitos
+## Requisitos
 
 * Python 3.10+
 * PostgreSQL 13+
@@ -119,22 +116,16 @@ Acesse o projeto em: [http://localhost:8000](http://localhost:8000)
 * psycopg2-binary
 * Pillow
 
-## 🧑‍💻 Contribuindo
+## Contribuindo
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e enviar pull requests.
 
-## 📄 Licença
+## Licença
 
 Este projeto está licenciado sob a [MIT License](LICENSE).
 
-## 🙋‍♂️ Autor
+## Autor
 
-Desenvolvido por \Paulo Ximana e Leonardo Teca.*
-
----
-
-```
+Desenvolvido por \Paulo Ximana.
 
 ---
-
-```
